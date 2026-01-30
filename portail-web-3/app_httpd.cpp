@@ -1122,69 +1122,42 @@ static esp_err_t win_handler(httpd_req_t *req) {
   return httpd_resp_send(req, NULL, 0);
 }
 
-static esp_err_t index_handler(httpd_req_t *req) {
-  File file = LittleFS.open("/index.html", "r");
-  
-  if (!file) {
-    log_e("Erreur : Impossible de lire index.html");
-    return httpd_resp_send_404(req);
-  }
+static esp_err_t file_handler(httpd_req_t *req) {
+    char filepath[64];
+    strcpy(filepath, req->uri);
 
-  httpd_resp_set_type(req, "text/html");
+    Serial.println(filepath);
 
-  // Envoyer le contenu du fichier
-  // On lit le fichier par blocs pour ne pas saturer la RAM
-  char buffer[1024];
-  size_t chunk_size;
-  while ((chunk_size = file.read((uint8_t *)buffer, sizeof(buffer))) > 0) {
-    httpd_resp_send_chunk(req, buffer, chunk_size);
-  }
+    if (strcmp(filepath, "/") == 0) strcpy(filepath, "/index.html");
 
-  file.close();
-  return httpd_resp_send_chunk(req, NULL, 0);
-}
+    File file = LittleFS.open(filepath, "r");
+    if (!file) {
+      return httpd_resp_send_404(req);
+    }
 
-static esp_err_t config_handler(httpd_req_t *req) {
-  File file = LittleFS.open("/config.html", "r");
-  
-  if (!file) {
-    log_e("Erreur : Impossible de lire index.html");
-    return httpd_resp_send_404(req);
-  }
+    if (strstr(filepath, ".png")) httpd_resp_set_type(req, "image/png");
+    else if (strstr(filepath, ".jpg")) httpd_resp_set_type(req, "image/jpeg");
+    else if (strstr(filepath, ".html")) httpd_resp_set_type(req, "text/html");
+    else if (strstr(filepath, ".css")) httpd_resp_set_type(req, "text/css");
 
-  httpd_resp_set_type(req, "text/html");
-
-  char buffer[1024];
-  size_t chunk_size;
-  while ((chunk_size = file.read((uint8_t *)buffer, sizeof(buffer))) > 0) {
-    httpd_resp_send_chunk(req, buffer, chunk_size);
-  }
-
-  file.close();
-  return httpd_resp_send_chunk(req, NULL, 0);
+    char buffer[1024];
+    size_t n;
+    while ((n = file.read((uint8_t *)buffer, sizeof(buffer))) > 0) {
+      httpd_resp_send_chunk(req, buffer, n);
+    }
+    file.close();
+    return httpd_resp_send_chunk(req, NULL, 0);
 }
 
 void startCameraServer() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.max_uri_handlers = 16;
+  config.uri_match_fn = httpd_uri_match_wildcard;
 
-  httpd_uri_t index_uri = {
-    .uri = "/",
+  httpd_uri_t file_uri = {
+    .uri = "/*",
     .method = HTTP_GET,
-    .handler = index_handler,
-    .user_ctx = NULL
-#ifdef CONFIG_HTTPD_WS_SUPPORT
-    ,
-    .is_websocket = true,
-    .handle_ws_control_frames = false,
-    .supported_subprotocol = NULL
-#endif
-  };
-
-  httpd_uri_t config_uri = {
-    .uri = "/config",
-    .method = HTTP_GET,
-    .handler = config_handler,
+    .handler = file_handler,
     .user_ctx = NULL
 #ifdef CONFIG_HTTPD_WS_SUPPORT
     ,
@@ -1334,7 +1307,6 @@ void startCameraServer() {
 #endif
   log_i("Starting web server on port: '%d'", config.server_port);
   if (httpd_start(&camera_httpd, &config) == ESP_OK) {
-    httpd_register_uri_handler(camera_httpd, &index_uri);
     httpd_register_uri_handler(camera_httpd, &config_uri);
     httpd_register_uri_handler(camera_httpd, &cmd_uri);
     httpd_register_uri_handler(camera_httpd, &status_uri);
@@ -1346,6 +1318,8 @@ void startCameraServer() {
     httpd_register_uri_handler(camera_httpd, &greg_uri);
     httpd_register_uri_handler(camera_httpd, &pll_uri);
     httpd_register_uri_handler(camera_httpd, &win_uri);
+
+    httpd_register_uri_handler(camera_httpd, &file_uri);
   }
 
   config.server_port += 1;
