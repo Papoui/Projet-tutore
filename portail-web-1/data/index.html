@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail</title>
+</head>
+
+<body>
+    <nav>
+        <ul>
+            <li><a href="/">Accueil</a></li>
+            <li>
+                <a href="#" onclick="goToCamera()" role="button">Configuration Caméra</a>
+            </li>
+        </ul>
+    </nav>
+
+    <script>
+        function goToCamera() {
+            var ip = window.location.hostname;
+            var urlCamera = "http://" + ip + ":80";
+            window.open(urlCamera, '_blank');
+            // window.location.href = urlCamera;
+        }
+    </script>
+</body>
+
+</html>
