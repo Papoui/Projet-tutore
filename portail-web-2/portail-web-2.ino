@@ -1,4 +1,4 @@
-#include "properties.h"
+#include "../properties.h"
 #include "esp_camera.h"
 #include <WiFi.h>
 
@@ -120,21 +120,17 @@ void setup() {
 #endif
 
   initEEPROM();
+  
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid, password);
 
-  WiFi.begin(ssid, password);
-  WiFi.setSleep(false);
-
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
+  Serial.print("Connected as ");
+  Serial.print(ssid);
 
   startCameraServer();
 
-  Serial.print("Camera Ready! Use 'http://");
-  Serial.print(WiFi.localIP());
+  Serial.print(" Camera Ready! Use 'http://");
+  Serial.print(WiFi.softAPIP());
   Serial.println("' to connect");
 }
 

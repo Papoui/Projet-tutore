@@ -15,7 +15,7 @@
 // ===================
 #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
-#include "properties.h"
+#include "../properties.h"
 
 // ===========================
 // Enter your WiFi credentials
@@ -118,21 +118,17 @@ void setup() {
   setupLedFlash(LED_GPIO_NUM);
 #endif
 
-  WiFi.begin(ssid, password);
-  WiFi.setSleep(false);
+  WiFi.mode(WIFI_AP);
+  WiFi.softAP(ssid, password);
 
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  Serial.println("");
-  Serial.println("WiFi connected");
+  Serial.print("Connected as ");
+  Serial.print(ssid);
 
   startCameraServer();
   startWebServer();
 
-  Serial.print("Ready! Use 'http://");
-  Serial.print(WiFi.localIP());
+  Serial.print(" Camera Ready! Use 'http://");
+  Serial.print(WiFi.softAPIP());
   Serial.println("' to connect");
 }
 
