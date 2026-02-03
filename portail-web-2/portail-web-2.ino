@@ -1,4 +1,4 @@
-#include "../properties.h"
+
 #include "esp_camera.h"
 #include <WiFi.h>
 
@@ -18,6 +18,7 @@
 // ===================
 #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
+#include "../properties.h"
 
 // ===========================
 // Enter your WiFi credentials
