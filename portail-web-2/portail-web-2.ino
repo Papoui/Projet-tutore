@@ -1,5 +1,8 @@
+#include "properties.h"
 #include "esp_camera.h"
 #include <WiFi.h>
+
+#include "config_service.h"
 
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
@@ -15,7 +18,6 @@
 // ===================
 #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
-#include "properties.h"
 
 // ===========================
 // Enter your WiFi credentials
@@ -116,6 +118,8 @@ void setup() {
 #if defined(LED_GPIO_NUM)
   setupLedFlash(LED_GPIO_NUM);
 #endif
+
+  initEEPROM();
 
   WiFi.begin(ssid, password);
   WiFi.setSleep(false);

@@ -12,7 +12,8 @@ const char index_html[] = R"=====(
     <nav>
         <ul>
             <li><a href="/">Accueil</a></li>
-            <li><a href="/config">Configuration Caméra</a></li>
+            <li><a href="/camera">Caméra</a></li>
+            <li><a href="/config">Configuration</a></li>
         </ul>
     </nav>
 </body>

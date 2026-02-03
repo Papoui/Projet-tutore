@@ -18,8 +18,12 @@
 #include "fb_gfx.h"
 #include "esp32-hal-ledc.h"
 #include "sdkconfig.h"
-#include "config_html.h"
+
+#include "config_service.h"
+
 #include "index_html.h"
+#include "config_html.h"
+#include "camera_html.h"
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -1123,24 +1127,92 @@ static esp_err_t win_handler(httpd_req_t *req) {
   return httpd_resp_send(req, NULL, 0);
 }
 
-static esp_err_t index_handler(httpd_req_t *req) {
+static esp_err_t index_page_handler(httpd_req_t *req) {
   httpd_resp_set_type(req, "text/html");
   return httpd_resp_send(req, index_html, strlen(index_html));
 }
 
-static esp_err_t config_handler(httpd_req_t *req) {
+static esp_err_t camera_page_handler(httpd_req_t *req) {
   httpd_resp_set_type(req, "text/html");
-  return httpd_resp_send(req, config_html, strlen(config_html));
+  return httpd_resp_send(req, camera_page_html, strlen(camera_page_html));
+}
+
+static esp_err_t config_page_handler(httpd_req_t *req) {
+  httpd_resp_set_type(req, "text/html");
+  return httpd_resp_send(req, config_page_html, strlen(config_page_html));
+}
+
+static esp_err_t api_config_get(httpd_req_t *req) {
+  char json_buf[256];
+  
+  snprintf(json_buf, sizeof(json_buf), 
+    "{"
+    "\"text\":\"%s\","
+    "\"integer\":%d,"
+    "\"float\":%.2f,"
+    "\"boolean\":%s,"
+    "\"boot\":%s"
+    "}",
+    myConfig.text,
+    myConfig.integer,
+    myConfig.number,
+    myConfig.boolean ? "true" : "false",
+    myConfig.loadOnBoot ? "true" : "false"
+  );
+
+  httpd_resp_set_type(req, "application/json");
+  return httpd_resp_send(req, json_buf, strlen(json_buf));
+}
+
+static esp_err_t api_config_save(httpd_req_t *req) {
+    char buf[200]; 
+    int ret, remaining = req->content_len;
+
+    if (remaining >= sizeof(buf)) return ESP_FAIL;
+
+    // Lecture du body
+    ret = httpd_req_recv(req, buf, remaining);
+    if (ret <= 0) return ESP_FAIL;
+    buf[ret] = '\0';
+
+    char param[64];
+
+    // Parsing (Même logique URL-Encoded que le JS envoie via URLSearchParams)
+    if (httpd_query_key_value(buf, "text", param, sizeof(param)) == ESP_OK) {
+      strncpy(myConfig.text, param, sizeof(myConfig.text)-1);
+      myConfig.text[sizeof(myConfig.text)-1] = '\0';
+    }
+    if (httpd_query_key_value(buf, "integer", param, sizeof(param)) == ESP_OK) {
+      myConfig.integer = atoi(param);
+    }
+    if (httpd_query_key_value(buf, "float", param, sizeof(param)) == ESP_OK) {
+      myConfig.number = atof(param);
+    }
+    
+    // Checkbox: Le JS envoie "boolean=1" si coché, ou rien si pas coché
+    myConfig.boolean = (httpd_query_key_value(buf, "boolean", param, sizeof(param)) == ESP_OK);
+    myConfig.loadOnBoot = (httpd_query_key_value(buf, "boot", param, sizeof(param)) == ESP_OK);
+
+    saveToEEPROM();
+
+    httpd_resp_send(req, "OK", 2);
+    return ESP_OK;
+}
+
+static esp_err_t api_config_read(httpd_req_t *req) {
+  loadFromEEPROM();
+  httpd_resp_send(req, "OK", 2);
+  return ESP_OK;
 }
 
 void startCameraServer() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.max_uri_handlers = 16;
 
-  httpd_uri_t index_uri = {
+  httpd_uri_t index_page_uri = {
     .uri = "/",
     .method = HTTP_GET,
-    .handler = index_handler,
+    .handler = index_page_handler,
     .user_ctx = NULL
 #ifdef CONFIG_HTTPD_WS_SUPPORT
     ,
@@ -1150,10 +1222,10 @@ void startCameraServer() {
 #endif
   };
 
-  httpd_uri_t config_uri = {
-    .uri = "/config",
+  httpd_uri_t camera_page_uri = {
+    .uri = "/camera",
     .method = HTTP_GET,
-    .handler = config_handler,
+    .handler = camera_page_handler,
     .user_ctx = NULL
 #ifdef CONFIG_HTTPD_WS_SUPPORT
     ,
@@ -1161,6 +1233,40 @@ void startCameraServer() {
     .handle_ws_control_frames = false,
     .supported_subprotocol = NULL
 #endif
+  };
+
+  httpd_uri_t config_page_uri = {
+    .uri = "/config",
+    .method = HTTP_GET,
+    .handler = config_page_handler,
+    .user_ctx = NULL
+#ifdef CONFIG_HTTPD_WS_SUPPORT
+    ,
+    .is_websocket = true,
+    .handle_ws_control_frames = false,
+    .supported_subprotocol = NULL
+#endif
+  };
+
+  httpd_uri_t uri_api_get = {
+    .uri       = "/api/config",
+    .method    = HTTP_GET,
+    .handler   = api_config_get,
+    .user_ctx  = NULL
+  };
+
+  httpd_uri_t uri_api_save = {
+    .uri       = "/api/save",
+    .method    = HTTP_POST,
+    .handler   = api_config_save,
+    .user_ctx  = NULL
+  };
+
+  httpd_uri_t uri_api_read = {
+    .uri       = "/api/read",
+    .method    = HTTP_GET,
+    .handler   = api_config_read,
+    .user_ctx  = NULL
   };
 
   httpd_uri_t status_uri = {
@@ -1303,8 +1409,10 @@ void startCameraServer() {
 #endif
   log_i("Starting web server on port: '%d'", config.server_port);
   if (httpd_start(&camera_httpd, &config) == ESP_OK) {
-    httpd_register_uri_handler(camera_httpd, &index_uri);
-    httpd_register_uri_handler(camera_httpd, &config_uri);
+    httpd_register_uri_handler(camera_httpd, &index_page_uri);
+    httpd_register_uri_handler(camera_httpd, &camera_page_uri);
+    httpd_register_uri_handler(camera_httpd, &config_page_uri);
+
     httpd_register_uri_handler(camera_httpd, &cmd_uri);
     httpd_register_uri_handler(camera_httpd, &status_uri);
     httpd_register_uri_handler(camera_httpd, &capture_uri);
@@ -1315,6 +1423,10 @@ void startCameraServer() {
     httpd_register_uri_handler(camera_httpd, &greg_uri);
     httpd_register_uri_handler(camera_httpd, &pll_uri);
     httpd_register_uri_handler(camera_httpd, &win_uri);
+
+    httpd_register_uri_handler(camera_httpd, &uri_api_get);
+    httpd_register_uri_handler(camera_httpd, &uri_api_save);
+    httpd_register_uri_handler(camera_httpd, &uri_api_read);
   }
 
   config.server_port += 1;

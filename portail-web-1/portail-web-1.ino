@@ -1,9 +1,6 @@
 #include "esp_camera.h"
 #include <WiFi.h>
 
-#include <ESPAsyncWebServer.h>
-#include <LittleFS.h>
-
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
 //            Ensure ESP32 Wrover Module or other board with PSRAM is selected
@@ -26,14 +23,8 @@
 const char *ssid = SSID;
 const char *password = PASS;
 
-
-// ===========================
-// Test double serveurs
-// ===========================
-
-AsyncWebServer server(50);
-
 void startCameraServer();
+void startWebServer();
 void setupLedFlash(int pin);
 
 void setup() {
@@ -138,45 +129,11 @@ void setup() {
   Serial.println("WiFi connected");
 
   startCameraServer();
+  startWebServer();
 
-  Serial.print("Camera Ready! Use 'http://");
+  Serial.print("Ready! Use 'http://");
   Serial.print(WiFi.localIP());
   Serial.println("' to connect");
-
-  // Double serveurs
-  if(!LittleFS.begin(true)) { 
-    Serial.println("Erreur LittleFS"); 
-    return; 
-  }
-
-  File root = LittleFS.open("/");
-  File file = root.openNextFile();
-  while(file){
-      Serial.print("Fichier trouvé : ");
-      Serial.println(file.name());
-      file = root.openNextFile();
-  }
-
-  // Route de test simple (SANS LittleFS)
-  server.on("/test", HTTP_GET, [](AsyncWebServerRequest *request){
-    request->send(200, "text/plain", "Le serveur fonctionne !");
-  });
-
-  // Route Index avec DEBUG
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
-    Serial.println("Route '/' demandée !");
-    
-    // Test d'ouverture manuelle pour voir si le fichier est lisible
-    if (LittleFS.exists("/index.html")) {
-        Serial.println("Le fichier existe selon LittleFS");
-        request->send(LittleFS, "/index.html", "text/html");
-    } else {
-        Serial.println("ERREUR : LittleFS ne trouve pas le fichier au moment de la requete !");
-        request->send(404, "text/plain", "Fichier introuvable");
-    }
-  });
-
-  server.begin();
 }
 
 void loop() {
