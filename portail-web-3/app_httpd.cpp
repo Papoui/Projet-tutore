@@ -19,6 +19,7 @@
 #include "fb_gfx.h"
 #include "esp32-hal-ledc.h"
 #include "sdkconfig.h"
+#include "config_service.h"
 
 #if defined(ARDUINO_ARCH_ESP32) && defined(CONFIG_ARDUHAL_ESP_LOG)
 #include "esp32-hal-log.h"
@@ -1123,30 +1124,92 @@ static esp_err_t win_handler(httpd_req_t *req) {
 }
 
 static esp_err_t file_handler(httpd_req_t *req) {
-    char filepath[64];
-    strcpy(filepath, req->uri);
+  char filepath[64];
+  strcpy(filepath, req->uri);
 
-    Serial.println(filepath);
+  Serial.println(filepath);
 
-    if (strcmp(filepath, "/") == 0) strcpy(filepath, "/index.html");
+  if (strcmp(filepath, "/") == 0) strcpy(filepath, "/index.html");
 
-    File file = LittleFS.open(filepath, "r");
-    if (!file) {
-      return httpd_resp_send_404(req);
-    }
+  File file = LittleFS.open(filepath, "r");
+  if (!file) {
+    return httpd_resp_send_404(req);
+  }
 
-    if (strstr(filepath, ".png")) httpd_resp_set_type(req, "image/png");
-    else if (strstr(filepath, ".jpg")) httpd_resp_set_type(req, "image/jpeg");
-    else if (strstr(filepath, ".html")) httpd_resp_set_type(req, "text/html");
-    else if (strstr(filepath, ".css")) httpd_resp_set_type(req, "text/css");
+  if (strstr(filepath, ".png")) httpd_resp_set_type(req, "image/png");
+  else if (strstr(filepath, ".jpg")) httpd_resp_set_type(req, "image/jpeg");
+  else if (strstr(filepath, ".html")) httpd_resp_set_type(req, "text/html");
+  else if (strstr(filepath, ".css")) httpd_resp_set_type(req, "text/css");
 
-    char buffer[1024];
-    size_t n;
-    while ((n = file.read((uint8_t *)buffer, sizeof(buffer))) > 0) {
-      httpd_resp_send_chunk(req, buffer, n);
-    }
-    file.close();
-    return httpd_resp_send_chunk(req, NULL, 0);
+  char buffer[1024];
+  size_t n;
+  while ((n = file.read((uint8_t *)buffer, sizeof(buffer))) > 0) {
+    httpd_resp_send_chunk(req, buffer, n);
+  }
+  file.close();
+  return httpd_resp_send_chunk(req, NULL, 0);
+}
+
+static esp_err_t api_config_get(httpd_req_t *req) {
+  char json_buf[256];
+  
+  snprintf(json_buf, sizeof(json_buf), 
+    "{"
+    "\"text\":\"%s\","
+    "\"integer\":%d,"
+    "\"float\":%.2f,"
+    "\"boolean\":%s,"
+    "\"boot\":%s"
+    "}",
+    myConfig.text,
+    myConfig.integer,
+    myConfig.number,
+    myConfig.boolean ? "true" : "false",
+    myConfig.loadOnBoot ? "true" : "false"
+  );
+
+  httpd_resp_set_type(req, "application/json");
+  return httpd_resp_send(req, json_buf, strlen(json_buf));
+}
+
+static esp_err_t api_config_save(httpd_req_t *req) {
+  char buf[200]; 
+  int ret, remaining = req->content_len;
+
+  if (remaining >= sizeof(buf)) return ESP_FAIL;
+
+  // Lecture du body
+  ret = httpd_req_recv(req, buf, remaining);
+  if (ret <= 0) return ESP_FAIL;
+  buf[ret] = '\0';
+
+  char param[64];
+
+  // Parsing (Même logique URL-Encoded que le JS envoie via URLSearchParams)
+  if (httpd_query_key_value(buf, "text", param, sizeof(param)) == ESP_OK) {
+    strncpy(myConfig.text, param, sizeof(myConfig.text)-1);
+    myConfig.text[sizeof(myConfig.text)-1] = '\0';
+  }
+  if (httpd_query_key_value(buf, "integer", param, sizeof(param)) == ESP_OK) {
+    myConfig.integer = atoi(param);
+  }
+  if (httpd_query_key_value(buf, "float", param, sizeof(param)) == ESP_OK) {
+    myConfig.number = atof(param);
+  }
+  
+  myConfig.boolean = (httpd_query_key_value(buf, "boolean", param, sizeof(param)) == ESP_OK);
+  myConfig.loadOnBoot = (httpd_query_key_value(buf, "boot", param, sizeof(param)) == ESP_OK);
+
+  saveToEEPROM();
+
+  httpd_resp_send(req, "OK", 2);
+  return ESP_OK;
+}
+
+static esp_err_t api_config_read(httpd_req_t *req) {
+  loadFromEEPROM();
+  httpd_resp_send(req, "OK", 2);
+  return ESP_OK;
 }
 
 void startCameraServer() {
@@ -1165,6 +1228,27 @@ void startCameraServer() {
     .handle_ws_control_frames = false,
     .supported_subprotocol = NULL
 #endif
+  };
+
+  httpd_uri_t uri_api_get = {
+    .uri       = "/api/config",
+    .method    = HTTP_GET,
+    .handler   = api_config_get,
+    .user_ctx  = NULL
+  };
+
+  httpd_uri_t uri_api_save = {
+    .uri       = "/api/save",
+    .method    = HTTP_POST,
+    .handler   = api_config_save,
+    .user_ctx  = NULL
+  };
+
+  httpd_uri_t uri_api_read = {
+    .uri       = "/api/read",
+    .method    = HTTP_GET,
+    .handler   = api_config_read,
+    .user_ctx  = NULL
   };
 
   httpd_uri_t status_uri = {
@@ -1317,6 +1401,10 @@ void startCameraServer() {
     httpd_register_uri_handler(camera_httpd, &greg_uri);
     httpd_register_uri_handler(camera_httpd, &pll_uri);
     httpd_register_uri_handler(camera_httpd, &win_uri);
+
+    httpd_register_uri_handler(camera_httpd, &uri_api_get);
+    httpd_register_uri_handler(camera_httpd, &uri_api_save);
+    httpd_register_uri_handler(camera_httpd, &uri_api_read);
 
     httpd_register_uri_handler(camera_httpd, &file_uri);
   }

@@ -1,6 +1,7 @@
 #include "esp_camera.h"
 #include <WiFi.h>
 #include <LittleFS.h>
+#include "config_service.h"
 
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
@@ -118,6 +119,13 @@ void setup() {
   setupLedFlash(LED_GPIO_NUM);
 #endif
 
+  if(!LittleFS.begin(true)){
+    Serial.println("Erreur Mount LittleFS");
+    return;
+  }
+
+  initEEPROM();
+
   WiFi.mode(WIFI_AP);
   WiFi.softAP(ssid, password);
 
@@ -129,11 +137,6 @@ void setup() {
   Serial.print(" Camera Ready! Use 'http://");
   Serial.print(WiFi.softAPIP());
   Serial.println("' to connect");
-
-  if(!LittleFS.begin(true)){
-    Serial.println("Erreur Mount LittleFS");
-    return;
-  }
 }
 
 void loop() {
