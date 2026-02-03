@@ -33,10 +33,8 @@ void loadFromEEPROM() {
  
   EEPROM.get(0, myConfig);
  
-  Serial.print("Texte : ");  Serial.println(myConfig.text);
-  Serial.print("Entier : "); Serial.println(myConfig.integer);
-  Serial.print("Float : ");  Serial.println(myConfig.number);
-  Serial.print("Bool : ");   Serial.println(myConfig.boolean ? "True" : "False");
+  Serial.print("ssid : ");  Serial.println(myConfig.ssid);
+  Serial.print("mot de passe : "); Serial.println(myConfig.password);
   Serial.print("loadOnBoot : ");   Serial.println(myConfig.loadOnBoot ? "True" : "False");
   Serial.println("Chargement terminé.");
 }

@@ -1147,16 +1147,12 @@ static esp_err_t api_config_get(httpd_req_t *req) {
   
   snprintf(json_buf, sizeof(json_buf), 
     "{"
-    "\"text\":\"%s\","
-    "\"integer\":%d,"
-    "\"float\":%.2f,"
-    "\"boolean\":%s,"
+    "\"ssid\":\"%s\","
+    "\"password\":\"%s\","
     "\"boot\":%s"
     "}",
-    myConfig.text,
-    myConfig.integer,
-    myConfig.number,
-    myConfig.boolean ? "true" : "false",
+    myConfig.ssid,
+    myConfig.password,
     myConfig.loadOnBoot ? "true" : "false"
   );
 
@@ -1178,19 +1174,16 @@ static esp_err_t api_config_save(httpd_req_t *req) {
     char param[64];
 
     // Parsing (Même logique URL-Encoded que le JS envoie via URLSearchParams)
-    if (httpd_query_key_value(buf, "text", param, sizeof(param)) == ESP_OK) {
-      strncpy(myConfig.text, param, sizeof(myConfig.text)-1);
-      myConfig.text[sizeof(myConfig.text)-1] = '\0';
+    if (httpd_query_key_value(buf, "ssid", param, sizeof(param)) == ESP_OK) {
+      strncpy(myConfig.ssid, param, sizeof(myConfig.ssid)-1);
+      myConfig.ssid[sizeof(myConfig.ssid)-1] = '\0';
     }
-    if (httpd_query_key_value(buf, "integer", param, sizeof(param)) == ESP_OK) {
-      myConfig.integer = atoi(param);
-    }
-    if (httpd_query_key_value(buf, "float", param, sizeof(param)) == ESP_OK) {
-      myConfig.number = atof(param);
+    if (httpd_query_key_value(buf, "password", param, sizeof(param)) == ESP_OK) {
+      strncpy(myConfig.password, param, sizeof(myConfig.password)-1);
+      myConfig.password[sizeof(myConfig.password)-1] = '\0';
     }
     
     // Checkbox: Le JS envoie "boolean=1" si coché, ou rien si pas coché
-    myConfig.boolean = (httpd_query_key_value(buf, "boolean", param, sizeof(param)) == ESP_OK);
     myConfig.loadOnBoot = (httpd_query_key_value(buf, "boot", param, sizeof(param)) == ESP_OK);
 
     saveToEEPROM();
