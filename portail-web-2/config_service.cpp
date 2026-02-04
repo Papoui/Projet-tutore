@@ -38,3 +38,11 @@ void loadFromEEPROM() {
   Serial.print("loadOnBoot : ");   Serial.println(myConfig.loadOnBoot ? "True" : "False");
   Serial.println("Chargement terminé.");
 }
+
+char* loadSsidFromEEPROM() {
+  return(EEPROM.get(0, myConfig.ssid));
+}
+
+char* loadPasswordFromEEPROM() {
+  return(EEPROM.get(0, myConfig.password));
+}
