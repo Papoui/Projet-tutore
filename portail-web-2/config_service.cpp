@@ -39,10 +39,10 @@ void loadFromEEPROM() {
   Serial.println("Chargement terminé.");
 }
 
-char* loadSsidFromEEPROM() {
-  return(EEPROM.get(0, myConfig.ssid));
-}
-
-char* loadPasswordFromEEPROM() {
-  return(EEPROM.get(0, myConfig.password));
+void resetEEPROM() {
+  Serial.println("--- Lancement de la réinitialisation de l'EEPROM ---");
+  EEPROM.begin(EEPROM_SIZE);
+  myConfig = DEFAULT_CONFIG;
+  saveToEEPROM();
+  Serial.println("--- EEPROM réinitialisée avec succès ---");
 }

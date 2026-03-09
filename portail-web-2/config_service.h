@@ -9,7 +9,7 @@ struct Config {
   bool loadOnBoot;
 };
 
-const Config DEFAULT_CONFIG = {"", "", false};
+const Config DEFAULT_CONFIG = {"ESP32", "123", false};
 
 extern Config myConfig;
 
@@ -18,5 +18,6 @@ extern Config myConfig;
 void initEEPROM();
 void saveToEEPROM();
 void loadFromEEPROM();
+void resetEEPROM();
 
 #endif
