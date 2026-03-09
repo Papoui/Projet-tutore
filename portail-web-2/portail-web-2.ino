@@ -1,8 +1,8 @@
 
 #include "esp_camera.h"
-#include <WiFi.h>
 
 #include "config_service.h"
+#include "wifi_service.h"
 
 //
 // WARNING!!! PSRAM IC required for UXGA resolution and high JPEG quality
@@ -18,13 +18,8 @@
 // ===================
 #define CAMERA_MODEL_XIAO_ESP32S3 // Has PSRAM
 #include "camera_pins.h"
-#include "../properties.h"
 
-// ===========================
-// Enter your WiFi credentials
-// ===========================
-const char *ssid = SSID;
-const char *password = PASS;
+#include <WiFi.h>
 
 void startCameraServer();
 void setupLedFlash(int pin);
@@ -121,29 +116,18 @@ void setup() {
 #endif
 
   initEEPROM();
-  WiFi.begin(myConfig.ssid, myConfig.password);
-  Serial.printf("Tentative de connexion au réseau %s...\n",myConfig.ssid);
-  for(int i = 0;i<5 && WiFi.status()!=WL_CONNECTED;i++){
-    delay(500);
-  }
-  if(WiFi.status() != WL_CONNECTED){
-    
-    Serial.printf("Impossible de se connecter au réseau en tant que client, passage en mode AP.\n", myConfig.ssid);
-    Serial.printf(myConfig.ssid);
-    WiFi.disconnect(true);
+  // resetEEPROM();
 
-    WiFi.mode(WIFI_AP);
-    WiFi.softAP(ssid, password);
-    Serial.printf("Point d'accès : %s\n", ssid);
-
-    Serial.printf("Serveur web prêt ! rendez vous sur 'http://%s' pour vous connecter.", WiFi.softAPIP().toString());
-
-  }else{
-    Serial.printf("Serveur web prêt ! rendez vous sur 'http://%s' pour vous connecter.",WiFi.localIP().toString());
-  }
-  WiFi.setSleep(false);
-  startCameraServer();
+  int wifi = initWifi(myConfig.ssid, myConfig.password);
   
+  startCameraServer();
+
+  if (wifi == 1) {
+    Serial.printf("Serveur web prêt ! rendez vous sur 'http://%s' pour vous connecter.", WiFi.softAPIP().toString());
+  }
+  else if (wifi == 2) {
+    Serial.printf("Serveur web prêt ! rendez vous sur 'http://%s' pour vous connecter.", WiFi.localIP().toString());
+  }
 }
 
 void loop() {
