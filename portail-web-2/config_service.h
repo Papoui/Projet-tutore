@@ -3,10 +3,11 @@
 
 #include <EEPROM.h>
 
-struct Config {
-  char ssid[32];
-  char password[32];
-  bool loadOnBoot;
+struct Config
+{
+    char ssid[32];
+    char password[32];
+    bool loadOnBoot;
 };
 
 const Config DEFAULT_CONFIG = {"ESP32", "123", false};
@@ -15,9 +16,9 @@ extern Config myConfig;
 
 #define EEPROM_SIZE sizeof(Config)
 
-void initEEPROM();
-void saveToEEPROM();
-void loadFromEEPROM();
-void resetEEPROM();
+void initConfig();
+bool saveConfig();
+void loadFromMemory();
+void resetMemory();
 
 #endif

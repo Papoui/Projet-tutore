@@ -63,7 +63,7 @@ const char config_page_html[] = R"=====(
 
         // 3. Fonction de relecture manuelle (EEPROM -> RAM -> JSON)
         function manualRead() {
-            fetch('/api/read') // Déclenche le loadFromEEPROM côté ESP
+            fetch('/api/read') // Déclenche le loadFromMemory côté ESP
                 .then(() => loadConfig()); // Recharge l'interface ensuite
         }
 
