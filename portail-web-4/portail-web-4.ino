@@ -21,6 +21,7 @@
 #include <WiFi.h>
 
 void startCameraServer();
+void startWebServer();
 void setupLedFlash(int pin);
 
 void setup()
@@ -130,15 +131,16 @@ void setup()
     int wifi = initWifi(myConfig.ssid, myConfig.password);
 
     startCameraServer();
+    startWebServer();
 
     if (wifi == 1)
     {
-        Serial.printf("Serveur web prêt ! rendez vous sur 'http://%s' pour vous connecter.",
+        Serial.printf("Serveur web prêt ! rendez vous sur 'http://%s:8080' pour vous connecter.",
                       WiFi.softAPIP().toString());
     }
     else if (wifi == 2)
     {
-        Serial.printf("Serveur web prêt ! rendez vous sur 'http://%s' pour vous connecter.", WiFi.localIP().toString());
+        Serial.printf("Serveur web prêt ! rendez vous sur 'http://%s:8080' pour vous connecter.", WiFi.localIP().toString());
     }
 }
 
