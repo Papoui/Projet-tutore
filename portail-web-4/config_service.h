@@ -17,7 +17,7 @@ extern Config myConfig;
 #define EEPROM_SIZE sizeof(Config)
 
 void initConfig();
-bool saveConfig();
+void saveConfig();
 void loadFromMemory();
 void resetMemory();
 
