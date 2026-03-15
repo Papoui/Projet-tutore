@@ -76,8 +76,10 @@
 
         // Affichage des pages
         const main = document.getElementById('main');
+        // Stockage des pages pour meilleure expérience utilisateur
         let pages = new Map();
         async function loadPage(pageName) {
+            // On évite de re fetch
             if (!pages.has(pageName)) {
                 pages.set(pageName, await fetchHTML(pageName));
             }
