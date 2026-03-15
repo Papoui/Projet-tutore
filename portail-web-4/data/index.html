@@ -7,63 +7,112 @@
     <title>AgriFuture - Portail</title>
     <link rel="stylesheet" href="chota.min.css">
     <link rel="stylesheet" href="colors.css">
+    <style>
+        .nav-left { flex-wrap: wrap; }
+        .tabs { flex-wrap: wrap; }
+    </style>
 </head>
 
 <body>
+    
     <nav class="nav">
         <div class="nav-left">
             <a class="brand" href="#">
-                <img src="./agrifuture_logo.png" alt="AgriFuture Logo">
+                <img src="./agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
             </a>
             <div class="tabs" id="nav-tabs">
-                <a href="#" data-file="accueil">Accueil</a>
-                <a href="#" data-file="lora">Paramètres LoRa</a>
-                <a href="#" data-file="loracam">Paramètres LoRaCam</a>
+                <a href="#" page-name="accueil">Accueil</a>
+                <a href="#" page-name="wifi">Paramètres Wifi</a>
+                <a href="#" page-name="lora">Paramètres LoRa</a>
+                <a href="#" page-name="loracam">Paramètres LoRaCam</a>
+                <a href="#" page-name="camera">Camera</a>
             </div>
         </div>
     </nav>
 
-    <main id="main" class="container">
+    <main id="main" class="container" style="flex: 1; width: 100%;">
         <p>Chargement en cours...</p>
     </main>
 
     <script>
-        function loadFile(name, tabElement) {
-            const allTabs = document.querySelectorAll('#nav-tabs a');
-            allTabs.forEach(tab => tab.classList.remove('active'));
-            if (tabElement) tabElement.classList.add('active');
 
-            fetch('/' + name + '.html')
-                .then(response => {
-                    if (!response.ok) throw new Error("Fichier introuvable");
-                    return response.text();
-                })
-                .then(html => {
-                    document.getElementById('main').innerHTML = html;
-                })
-                .catch(error => {
-                    document.getElementById('main').innerHTML = "<p class='text-error'>Erreur de chargement.</p>";
+        // Requête POST HTTP pour balise <form> 
+        async function submitPost(event) {
+            event.preventDefault();
+            const ref = event.target.getAttribute('api-ref');
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            const params = new URLSearchParams(data);
+            try {
+                const response = await fetch(`${ref}?${params}`, {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
                 });
+            } catch (error) {
+                console.error("Erreur de sauvegarde", error);
+            }
         }
 
-        window.onload = function () {
-            const tabs = document.querySelectorAll('#nav-tabs a');
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const fileName = this.getAttribute('data-file');
-                    loadFile(fileName, this);
-                });
-            });
+        // Fetch un fichier html dans data/*
+        async function fetchHTML(fileName) {
+            try {
+                const response = await fetch('/' + fileName + '.html');
+                if (!response.ok) throw new Error("Fichier introuvable");
+                return response.text();
+            } catch (error) {
+                console.error(error);
+                return "<p class='text-error'>Erreur de chargement.</p>";
+            }
+        }
+        
+        // Affichage des onglets
+        const tabs = document.querySelectorAll('#nav-tabs a');
+        function updateTabs(event, tab) {
+            event.preventDefault();
+            tabs.forEach(tab => tab.classList.remove('active'));
+            tab.classList.add('active');
+        }
 
+        // Affichage des pages
+        const main = document.getElementById('main');
+        let pages = new Map();
+        async function loadPage(pageName) {
+            if (!pages.has(pageName)) {
+                pages.set(pageName, await fetchHTML(pageName));
+            }
+            main.innerHTML = pages.get(pageName);
+            
+            // Logique d'initialisation propre à la page camera
+            if (pageName == "camera") {
+                main.classList.remove('container');
+                const ip = window.location.hostname;
+                const urlCamera = "http://" + ip + ":80";
+                const iframe = document.getElementById('iframe-camera'); 
+                iframe.src = urlCamera;
+            } else {
+                main.classList.add('container');
+            }
+        } 
+        
+        // Au lancement
+        window.onload = () => {
+            tabs.forEach(tab => {
+                tab.onclick = (event) => {
+                    updateTabs(event, tab)
+                    const pageName = tab.getAttribute('page-name');
+                    loadPage(pageName);
+                };
+            });
+            // Affiche le premier onglet
             if (tabs.length > 0) {
                 const firstTab = tabs[0];
-                const fileName = firstTab.getAttribute('data-file');
-                loadFile(fileName, firstTab);
+                firstTab.classList.add('active');
+                const pageName = firstTab.getAttribute('page-name')
+                loadPage(pageName);
             }
         };
     </script>
-
 </body>
 
 </html>
