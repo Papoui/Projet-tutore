@@ -2,10 +2,12 @@
 
 int initWifi(char* ssid, char* password) {
   WiFi.begin(ssid, password);
-  Serial.printf("Tentative de connexion au réseau %s...\n", ssid);
-  for (int i = 0;i<5 && WiFi.status()!=WL_CONNECTED;i++) {
-    delay(500);
+  Serial.printf("Tentative de connexion au réseau %s", ssid);
+  for (int i = 0; i < 5 && WiFi.status() != WL_CONNECTED; i++) {
+    delay(2000);
+    Serial.printf(".");
   }
+  Serial.printf("");
   if (WiFi.status() != WL_CONNECTED) {
     
     Serial.printf("Impossible de se connecter au réseau en tant que client, passage en mode AP.\n", ssid);
@@ -21,5 +23,4 @@ int initWifi(char* ssid, char* password) {
   else {
     return 2;
   }
-  WiFi.setSleep(false);
 }
