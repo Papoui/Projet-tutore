@@ -8,6 +8,23 @@
     <link rel="stylesheet" href="chota.min.css">
     <link rel="stylesheet" href="colors.css">
     <style>
+        body {
+            margin: 0;
+            height: 100vh;  /* On garde ça en "sécurité" pour les très vieux navigateurs */
+            height: 100dvh; /* LA solution magique pour les mobiles récents */
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        
+        main {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex; 
+            flex-direction: column;
+        }
+
+        .nav { flex-shrink: 0; }
         .nav-left { flex-wrap: wrap; }
         .tabs { flex-wrap: wrap; }
     </style>
@@ -25,16 +42,52 @@
                 <a href="#" page-name="wifi">Paramètres Wifi</a>
                 <a href="#" page-name="lora">Paramètres LoRa</a>
                 <a href="#" page-name="loracam">Paramètres LoRaCam</a>
-                <a href="#" page-name="camera">Camera</a>
+                <a href="#" page-name="camera">Caméra</a>
             </div>
         </div>
     </nav>
 
-    <main id="main" class="container" style="flex: 1; width: 100%;">
+    <main id="main" class="container">
         <p>Chargement en cours...</p>
     </main>
 
     <script>
+        
+        const ip = window.location.hostname;
+        const urlCamera = "http://" + ip + ":80";
+        
+        // Affichage des pages
+        const main = document.getElementById('main');
+        // Stockage des pages pour une interface plus rapide une fois chargée
+        let pages = new Map();
+        async function loadPage(pageName) {
+            // Exeption pour la page camera
+            if (pageName == "camera") {
+                main.classList.remove('container');
+                main.innerHTML = `<iframe src=${urlCamera} style="flex-grow: 1; border: none;"></iframe>` 
+                return;
+            }
+            // On évite de re fetch
+            if (!pages.has(pageName)) {
+                try {
+                    const html = await fetchHTML(pageName);
+                    pages.set(pageName, html);
+                } catch (error) {
+                    console.error(error);
+                    main.innerHTML = "<p class='text-error'>Erreur de chargement.</p>";
+                    return;
+                }
+            }
+            main.classList.add('container');
+            main.innerHTML = pages.get(pageName);
+        } 
+
+        // Fetch un fichier html dans data/*
+        async function fetchHTML(fileName) {
+            const response = await fetch('/' + fileName + '.html');
+            if (!response.ok) throw new Error(`Erreur HTTP ${response.status} : ${await response.text()}`);
+            return response.text();
+        }
 
         // Requête POST HTTP pour balise <form> 
         async function submitPost(event) {
@@ -49,23 +102,13 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify(data)
                 });
+                if (!response.ok) throw new Error(`Erreur HTTP ${response.status} : ${await response.text()}`);
             } catch (error) {
-                console.error("Erreur de sauvegarde", error);
+                console.error(error);
+                alert('Erreur de sauvegarde');
             }
         }
 
-        // Fetch un fichier html dans data/*
-        async function fetchHTML(fileName) {
-            try {
-                const response = await fetch('/' + fileName + '.html');
-                if (!response.ok) throw new Error("Fichier introuvable");
-                return response.text();
-            } catch (error) {
-                console.error(error);
-                return "<p class='text-error'>Erreur de chargement.</p>";
-            }
-        }
-        
         // Affichage des onglets
         const tabs = document.querySelectorAll('#nav-tabs a');
         function updateTabs(event, tab) {
@@ -73,29 +116,6 @@
             tabs.forEach(tab => tab.classList.remove('active'));
             tab.classList.add('active');
         }
-
-        // Affichage des pages
-        const main = document.getElementById('main');
-        // Stockage des pages pour meilleure expérience utilisateur
-        let pages = new Map();
-        async function loadPage(pageName) {
-            // On évite de re fetch
-            if (!pages.has(pageName)) {
-                pages.set(pageName, await fetchHTML(pageName));
-            }
-            main.innerHTML = pages.get(pageName);
-            
-            // Logique d'initialisation propre à la page camera
-            if (pageName == "camera") {
-                main.classList.remove('container');
-                const ip = window.location.hostname;
-                const urlCamera = "http://" + ip + ":80";
-                const iframe = document.getElementById('iframe-camera'); 
-                iframe.src = urlCamera;
-            } else {
-                main.classList.add('container');
-            }
-        } 
         
         // Au lancement
         window.onload = () => {

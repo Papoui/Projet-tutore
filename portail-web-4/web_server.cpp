@@ -32,7 +32,7 @@ void handleNotFound(AsyncWebServerRequest *request)
     }
     else
     {
-        request->send(404, "text/plain", "Erreur 404");
+        request->send(404, "text/plain", "Fichier introuvable");
         Serial.printf("404: %s\n", path.c_str());
     }
 }
