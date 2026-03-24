@@ -3,11 +3,6 @@
 
 AsyncWebServer server(8080);
 
-void handleIndex(AsyncWebServerRequest *request)
-{
-    request->send(LittleFS, "/index.html", "text/html");
-}
-
 void handleWifiConfig(AsyncWebServerRequest *request)
 {
     if (request->hasParam("ssid"))
@@ -21,6 +16,11 @@ void handleWifiConfig(AsyncWebServerRequest *request)
         Serial.printf("password : %s\n", value.c_str());
     }
     request->send(200);
+}
+
+void handleIndex(AsyncWebServerRequest *request)
+{
+    request->send(LittleFS, "/index.html", "text/html");
 }
 
 void handleNotFound(AsyncWebServerRequest *request)
@@ -52,3 +52,4 @@ void startWebServer()
     server.begin();
     Serial.println("Serveur HTTP (port 8080) démarré");
 }
+

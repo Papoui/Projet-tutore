@@ -52,7 +52,6 @@
     </main>
 
     <script>
-        
         const ip = window.location.hostname;
         const urlCamera = "http://" + ip + ":80";
         
@@ -72,7 +71,8 @@
                 try {
                     const html = await fetchHTML(pageName);
                     pages.set(pageName, html);
-                } catch (error) {
+                } 
+                catch (error) {
                     console.error(error);
                     main.innerHTML = "<p class='text-error'>Erreur de chargement.</p>";
                     return;
@@ -80,12 +80,15 @@
             }
             main.classList.add('container');
             main.innerHTML = pages.get(pageName);
+            loadConfig(pageName);
         } 
 
         // Fetch un fichier html dans data/*
         async function fetchHTML(fileName) {
             const response = await fetch('/' + fileName + '.html');
-            if (!response.ok) throw new Error(`Erreur HTTP ${response.status} : ${await response.text()}`);
+            if (!response.ok) {
+                throw new Error(`Erreur HTTP ${response.status} : ${await response.text()}`);
+            } 
             return response.text();
         }
 
@@ -106,6 +109,34 @@
             } catch (error) {
                 console.error(error);
                 alert('Erreur de sauvegarde');
+            }
+        }
+
+        // Requête GET HTTP pour balise <form> 
+        async function loadConfig(pageName) {
+            const form = main.querySelector('form[api-ref]');
+            if (!form) return; 
+
+            const ref = form.getAttribute('api-ref');
+            
+            try {
+                const response = await fetch(ref);
+                if (!response.ok) throw new Error(`Erreur HTTP ${response.status}`);
+                
+                const data = await response.json();
+                
+                for (const [key, value] of Object.entries(data)) {
+                    const input = form.elements[key];
+                    if (input) {
+                        if (input.type === 'checkbox') {
+                            input.checked = (value === true || value === 'true' || value === 1 || value === '1');
+                        } else {
+                            input.value = value;
+                        }
+                    }
+                }
+            } catch (error) {
+                console.warn(`Impossible de charger la config pour ${pageName} :`, error);
             }
         }
 
