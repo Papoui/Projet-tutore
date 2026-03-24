@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriFuture - Portail</title>
+    <link rel="stylesheet" href="chota.min.css">
+    <link rel="stylesheet" href="colors.css">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        
+        main {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex; 
+            flex-direction: column;
+        }
+
+        .nav { flex-shrink: 0; }
+        .nav-left { flex-wrap: wrap; }
+        .tabs { flex-wrap: wrap; }
+    </style>
+</head>
+
+<body>
+    
+    <nav class="nav">
+        <div class="nav-left">
+            <a class="brand" href="#">
+                <img src="./agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
+            </a>
+            <div class="tabs" id="nav-tabs">
+                <a href="/wifi.html">Paramètres Wifi</a>
+                <a href="/lora.html">Paramètres LoRa</a>
+                <a href="/loracam.html">Paramètres LoRaCam</a>
+                <a href="#" onclick="onCameraClick(event)">Caméra</a>
+            </div>
+        </div>
+    </nav>
+
+    <h2>Paramètres Wifi</h2>
+    <form api-ref="/api/config/wifi" onsubmit="submitPost(event)">
+        <fieldset>
+            <p>
+                <label>SSID</label>
+                <input type="text" name="ssid">
+            </p>
+            <p>
+                <label>Mot de passe</label>
+                <input type="text" name="password">
+            </p>
+            <p>
+                <label>Mode point d'accès</label>
+                <input type="checkbox" name="accessPoint">
+            </p>
+            <button type="submit" class="button primary">Sauvegarder</button>
+        </fieldset>
+    </form>
+    
+    <script>
+        const urlCamera = `http://${window.location.hostname}:80`;
+        function onCameraClick(event) {
+            event.preventDefault();
+            window.open(urlCamera)
+        }
+    </script>
+    
+</body>
+
+</html>
+
+

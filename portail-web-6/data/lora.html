@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriFuture - Portail</title>
+    <link rel="stylesheet" href="chota.min.css">
+    <link rel="stylesheet" href="colors.css">
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; 
+        }
+        
+        main {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex; 
+            flex-direction: column;
+        }
+
+        .nav { flex-shrink: 0; }
+        .nav-left { flex-wrap: wrap; }
+        .tabs { flex-wrap: wrap; }
+    </style>
+</head>
+
+<body>
+    
+    <nav class="nav">
+        <div class="nav-left">
+            <a class="brand" href="#">
+                <img src="./agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
+            </a>
+            <div class="tabs" id="nav-tabs">
+                <a href="/wifi.html">Paramètres Wifi</a>
+                <a href="/lora.html">Paramètres LoRa</a>
+                <a href="/loracam.html">Paramètres LoRaCam</a>
+                <a href="#" onclick="onCameraClick(event)">Caméra</a>
+            </div>
+        </div>
+    </nav>
+
+    <h2>Paramètres LoRa</h2>
+    <form api-ref="/api/config/lora" onsubmit="submitPost(event)">
+        <fieldset>
+            <p>
+                <label>BW</label>
+                <select name="bw">
+                    <option value="125" selected>125kHz</option>
+                    <option value="250">250kHz</option>
+                    <option value="500">500kHz</option>
+                </select>
+            </p>
+            <p>
+                <label>SF</label>
+                <select name="sf">
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12" selected>12</option>
+                </select>
+            </p>
+            <p>
+                <label>Fréquence</label>
+                <div class="grouped">
+                    <input type="number" step="0.1" name="frequency" value="868.1">
+                    <span class="button outline">kHz</span>
+                </div>
+            </p>
+            <p>
+                <label>Device address</label>
+                <div class="grouped">
+                    <input type="text" name="devAddr" value="26012DAA">
+                    <span class="button outline">0x</span>
+                </div>
+            </p>
+            <p>
+                <label>AppSKey</label>
+                <div class="grouped">
+                    <input type="text" name="appSKey" value="23158D3BBC31E6AF670D195B5AED5525">
+                    <span class="button outline">0x</span>
+                </div>
+            </p>
+            <p>
+                <label>NwkSKey</label>
+                <div class="grouped">
+                    <input type="text" name="nwkSKey" value="23158D3BBC31E6AF670D195B5AED5525">
+                    <span class="button outline">0x</span>
+                </div>
+            </p>
+            <button type="submit" class="button primary">Sauvegarder</button>
+        </fieldset>
+    </form>
+    
+    <script>
+        const urlCamera = `http://${window.location.hostname}:80`;
+        function onCameraClick(event) {
+            event.preventDefault();
+            window.open(urlCamera)
+        }
+
+        // POST pour demander la sauvegarde des paramètres
+        async function submitPost(event) {
+            event.preventDefault();
+            const ref = event.target.getAttribute('api-ref');
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            const params = new URLSearchParams(data);
+            try {
+                const response = await fetch(`${ref}?${params}`, {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) throw new Error(`Erreur HTTP ${response.status} : ${await response.text()}`);
+            } catch (error) {
+                console.error(error);
+                alert('Erreur de sauvegarde');
+            }
+        }
+    </script>
+    
+</body>
+
+</html>
