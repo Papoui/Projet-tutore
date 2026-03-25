@@ -7,27 +7,7 @@
     <title>AgriFuture - Portail</title>
     <link rel="stylesheet" href="chota.min.css">
     <link rel="stylesheet" href="colors.css">
-    <style>
-        body {
-            margin: 0;
-            height: 100vh;
-            height: 100dvh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden; 
-        }
-        
-        main {
-            flex-grow: 1;
-            overflow-y: auto;
-            display: flex; 
-            flex-direction: column;
-        }
-
-        .nav { flex-shrink: 0; }
-        .nav-left { flex-wrap: wrap; }
-        .tabs { flex-wrap: wrap; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
@@ -35,19 +15,19 @@
     <nav class="nav">
         <div class="nav-left">
             <a class="brand" href="#">
-                <img src="./agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
+                <img src="agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
             </a>
             <div class="tabs" id="nav-tabs">
-                <a href="/wifi.html">Paramètres Wifi</a>
-                <a href="/lora.html">Paramètres LoRa</a>
-                <a href="/loracam.html">Paramètres LoRaCam</a>
+                <a href="wifi.html">Paramètres Wifi</a>
+                <a href="lora.html">Paramètres LoRa</a>
+                <a href="loracam.html">Paramètres LoRaCam</a>
                 <a href="#" onclick="onCameraClick(event)">Caméra</a>
             </div>
         </div>
     </nav>
 
     <h2>Paramètres LoRa</h2>
-    <form api-ref="/api/config/lora" onsubmit="submitPost(event)">
+    <form onsubmit="onSubmit(event)">
         <fieldset>
             <p>
                 <label>BW</label>
@@ -100,34 +80,43 @@
         </fieldset>
     </form>
     
-    <script>
-        const urlCamera = `http://${window.location.hostname}:80`;
-        function onCameraClick(event) {
-            event.preventDefault();
-            window.open(urlCamera)
-        }
+    <script src="script.js"></script>
 
-        // POST pour demander la sauvegarde des paramètres
-        async function submitPost(event) {
+    <script>
+        const form = document.querySelector('form');
+        
+        async function onSubmit(event) {
             event.preventDefault();
-            const ref = event.target.getAttribute('api-ref');
             const formData = new FormData(event.target);
             const data = Object.fromEntries(formData.entries());
-            const params = new URLSearchParams(data);
             try {
-                const response = await fetch(`${ref}?${params}`, {
-                    method: 'POST',
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(data)
-                });
-                if (!response.ok) throw new Error(`Erreur HTTP ${response.status} : ${await response.text()}`);
+                await postHTTP('/api/config/lora', data);
+                alert('Paramètres LoRa sauvegardés');
             } catch (error) {
                 console.error(error);
-                alert('Erreur de sauvegarde');
+                alert('Erreur de sauvegarde des paramètres LoRa');
             }
         }
+
+        async function onLoad() {
+            try {
+                const data = await getHTTP('/api/config');
+                form.bw.value = data.bw || '125';
+                form.sf.value = data.sf || '12';
+                form.frequency.value = data.frequency || '868.1';
+                form.devAddr.value = data.devAddr || '26012DAA';
+                form.appSKey.value = data.appSKey || '23158D3BBC31E6AF670D195B5AED5525';
+                form.nwkSKey.value = data.nwkSKey || '23158D3BBC31E6AF670D195B5AED5525';
+            } catch (error) {
+                console.error(error);
+                alert('Erreur de chargement des paramètres LoRa');
+            }
+        }
+
+        window.addEventListener('load', onLoad);
+
     </script>
-    
+
 </body>
 
 </html>

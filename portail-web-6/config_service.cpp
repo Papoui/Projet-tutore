@@ -34,16 +34,19 @@ void saveConfig()
 void loadFromMemory()
 {
     Serial.println("--- Chargement depuis l'EEPROM ---");
-
     EEPROM.get(0, myConfig);
+    Serial.println("Chargement terminé.");
+}
 
+void printConfig() {
+    Serial.print("loadOnBoot : ");
+    Serial.println(myConfig.loadOnBoot ? "True" : "False");
     Serial.print("ssid : ");
     Serial.println(myConfig.ssid);
     Serial.print("mot de passe : ");
     Serial.println(myConfig.password);
-    Serial.print("loadOnBoot : ");
-    Serial.println(myConfig.loadOnBoot ? "True" : "False");
-    Serial.println("Chargement terminé.");
+    Serial.print("accessPoint : ");
+    Serial.println(myConfig.accessPoint ? "True" : "False");
 }
 
 void resetMemory()
