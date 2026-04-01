@@ -89,8 +89,11 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "freebox_TYWCSM";   
-const char *password = "copernic";
+const char *ssid = "SFR_6B58";
+const char *password = "38xbgu4tiv76tyah6rgk";
+
+// const char *ssid = "freebox_TYWCSM";   
+// const char *password = "copernic";
 
 //const char *ssid = "iPhoneD";   
 //const char *password = "345hello";
@@ -98,6 +101,9 @@ const char *password = "copernic";
 //app_httpd.cpp
 void startCameraServer();
 void setupLedFlash(int pin);
+
+//web_server.cpp
+void startWebServer();
 
 ////////////////////////////////////////////////////////////////////
 // LoRa + custom cam with optimized image encoding
@@ -719,6 +725,7 @@ void setup() {
     Serial.println("WiFi connected");
 
     startCameraServer();
+    startWebServer();
 
     Serial.print("Camera Ready! Use 'http://");
     Serial.print(WiFi.localIP());
