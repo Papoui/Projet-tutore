@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriFuture - Portail</title>
+    <link rel="stylesheet" href="chota.min.css">
+    <link rel="stylesheet" href="colors.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    
+    <nav class="nav">
+        <div class="nav-left">
+            <a class="brand" href="#">
+                <img src="agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
+            </a>
+            <div class="tabs" id="nav-tabs">
+                <a href="wifi.html">Paramètres Wifi</a>
+                <a href="lora.html">Paramètres LoRa</a>
+                <a href="loracam.html">Paramètres LoRaCam</a>
+                <a href="#" onclick="onCameraClick(event)">Caméra</a>
+            </div>
+        </div>
+    </nav>
+
+    <h2>Paramètres Wifi</h2>
+    <form onsubmit="onSubmit(event)">
+        <fieldset>
+            <p>
+                <label>SSID</label>
+                <input type="text" name="ssid">
+            </p>
+            <p>
+                <label>Mot de passe</label>
+                <input type="text" name="password">
+            </p>
+            <p>
+                <label>Mode point d'accès</label>
+                <input type="checkbox" name="accessPoint">
+            </p>
+            <button type="submit" class="button primary">Sauvegarder</button>
+        </fieldset>
+    </form>
+    
+    <script src="script.js"></script>
+
+    <script>
+        const form = document.querySelector('form');
+        
+        async function onSubmit(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const data = Object.fromEntries(formData.entries());
+            try {
+                await postHTTP('/api/config/wifi', data);
+                alert('Paramètres Wi-Fi sauvegardés');
+            } catch (error) {
+                console.error(error);
+                alert('Erreur de sauvegarde des paramètres Wi-Fi');
+            }
+        }
+
+        async function onLoad() {
+            try {
+                const data = await getHTTP('/api/config');
+                form.ssid.value = data.ssid || '';
+                form.password.value = data.password || '';
+                form.accessPoint.checked = data.accessPoint || false;
+            } catch (error) {
+                console.error(error);
+                alert('Erreur de chargement des paramètres Wi-Fi');
+            }
+        }
+
+        window.addEventListener('load', onLoad);
+    </script>
+    
+</body>
+
+</html>
+
+
