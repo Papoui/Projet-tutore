@@ -18,7 +18,6 @@
                 <img src="agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
             </a>
             <div class="tabs" id="nav-tabs">
-                <a href="wifi.html">Paramètres Wifi</a>
                 <a href="lora.html" class="active">Paramètres LoRa</a>
                 <a href="loracam.html">Paramètres LoRaCam</a>
                 <a href="camera.html">Caméra</a>
@@ -103,12 +102,13 @@
         async function onLoad() {
             try {
                 const data = await getHTTP('/api/config');
-                form.bw.value = data.bw || '125';
-                form.sf.value = data.sf || '12';
-                form.frequency.value = data.frequency || '868.1';
-                form.devAddr.value = data.devAddr || '26012DAA';
-                form.appSKey.value = data.appSKey || '23158D3BBC31E6AF670D195B5AED5525';
-                form.nwkSKey.value = data.nwkSKey || '23158D3BBC31E6AF670D195B5AED5525';
+                console.log(data);
+                form.bw.value = data.lora.bw;
+                form.sf.value = data.lora.sf;
+                form.frequency.value = data.lora.frequency;
+                form.devAddr.value = data.lora.devAddr;
+                form.appSKey.value = data.lora.appSKey;
+                form.nwkSKey.value = data.lora.nwkSKey;
             } catch (error) {
                 console.error(error);
                 alert('Erreur de chargement des paramètres LoRa');

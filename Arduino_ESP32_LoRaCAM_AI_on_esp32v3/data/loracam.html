@@ -17,7 +17,6 @@
                 <img src="agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
             </a>
             <div class="tabs" id="nav-tabs">
-                <a href="wifi.html">Paramètres Wifi</a>
                 <a href="lora.html">Paramètres LoRa</a>
                 <a href="loracam.html" class="active">Paramètres LoRaCam</a>
                 <a href="camera.html">Caméra</a>
@@ -64,8 +63,8 @@
         async function onLoad() {
             try {
                 const data = await getHTTP('/api/config');
-                form.quality.value = data.quality || 20;
-                form.mss.value = data.mss || 64;
+                form.quality.value = data.loracam.quality;
+                form.mss.value = data.loracam.mss;
             } catch (error) {
                 console.error(error);
                 alert('Erreur de chargement des paramètres LoRaCam');
