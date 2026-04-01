@@ -1,0 +1,14 @@
+{
+    "lora": {
+        "bw": "125",
+        "sf": "12",
+        "frequency": "868.1",
+        "devAddr": "26012DAA",
+        "appSKey": "23158D3BBC31E6AF670D195B5AED5525",
+        "nwkSKey": "23158D3BBC31E6AF670D195B5AED5525"
+    },
+    "loracam": {
+        "quality": 20,
+        "mss": 64
+    }
+}
