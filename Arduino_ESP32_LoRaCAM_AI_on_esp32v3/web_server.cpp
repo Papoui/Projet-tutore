@@ -7,18 +7,14 @@ AsyncWebServer server(8080);
 
 void parseConfigJson(JsonDocument &doc, const Config &c)
 {
-    doc["loadOnBoot"] = c.loadOnBoot;
-    doc["ssid"] = c.ssid;
-    doc["password"] = c.password;
-    doc["accessPoint"] = c.accessPoint;
-    doc["bw"] = c.bw;
-    doc["sf"] = c.sf;
-    doc["frequency"] = c.frequency;
-    doc["devAddr"] = c.devAddr;
-    doc["appSKey"] = c.appSKey;
-    doc["nwkSKey"] = c.nwkSKey;
-    doc["quality"] = c.quality;
-    doc["mss"] = c.mss;
+    doc["lora"]["bw"] = c.lora.bw;
+    doc["lora"]["sf"] = c.lora.sf;
+    doc["lora"]["frequency"] = c.lora.frequency;
+    doc["lora"]["devAddr"] = c.lora.devAddr;
+    doc["lora"]["appSKey"] = c.lora.appSKey;
+    doc["lora"]["nwkSKey"] = c.lora.nwkSKey;
+    doc["loracam"]["quality"] = c.loracam.quality;
+    doc["loracam"]["mss"] = c.loracam.mss;
 }
 
 void getConfig(AsyncWebServerRequest *request)
@@ -46,17 +42,19 @@ void handleIndex(AsyncWebServerRequest *request)
 
 void handleNotFound(AsyncWebServerRequest *request)
 {
-    if (request->method() == HTTP_OPTIONS) {
+    if (request->method() == HTTP_OPTIONS)
+    {
         request->send(200);
         return;
     }
-
     String path = request->url();
-    if (LittleFS.exists(path)) {
+    if (LittleFS.exists(path))
+    {
         request->send(LittleFS, path);
-    } else {
+    }
+    else
+    {
         request->send(LittleFS, "/index.html", "text/html");
-        Serial.printf("404: %s (Methode: %s)\n", path.c_str(), request->methodToString());
     }
 }
 
@@ -64,76 +62,61 @@ void handleEmptyRequest(AsyncWebServerRequest *request)
 {
 }
 
-void handleWifiBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
-{
-    if (index == 0 && len == total) {
-        JsonDocument doc;
-        if (!deserializeJson(doc, data, len)) {
-            if (doc.containsKey("ssid")) strlcpy(myConfig.ssid, doc["ssid"], sizeof(myConfig.ssid));
-            if (doc.containsKey("password")) strlcpy(myConfig.password, doc["password"], sizeof(myConfig.password));
-            myConfig.accessPoint = doc.containsKey("accessPoint") && (doc["accessPoint"] == "on" || doc["accessPoint"] == true);
-            
-            saveConfig();
-            printConfig();
-            request->send(200, "text/plain", "WiFi Config Sauvegardee");
-        } else {
-            request->send(400, "text/plain", "JSON Invalide");
-        }
-    }
-}
-
 void handleLoraBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
-    if (index == 0 && len == total) {
+    if (index == 0 && len == total)
+    {
         JsonDocument doc;
-        if (!deserializeJson(doc, data, len)) {
-            if (doc.containsKey("bw")) myConfig.bw = doc["bw"].as<int>();
-            if (doc.containsKey("sf")) myConfig.sf = doc["sf"].as<int>();
-            if (doc.containsKey("frequency")) myConfig.frequency = doc["frequency"].as<int>();
-            if (doc.containsKey("devAddr")) strlcpy(myConfig.devAddr, doc["devAddr"], sizeof(myConfig.devAddr));
-            if (doc.containsKey("appSKey")) strlcpy(myConfig.appSKey, doc["appSKey"], sizeof(myConfig.appSKey));
-            if (doc.containsKey("nwkSKey")) strlcpy(myConfig.nwkSKey, doc["nwkSKey"], sizeof(myConfig.nwkSKey));
-            
+        if (!deserializeJson(doc, data, len))
+        {
+            myConfig.lora.bw = doc["bw"].as<String>();
+            myConfig.lora.sf = doc["sf"].as<String>();
+            myConfig.lora.frequency = doc["frequency"].as<String>();
+            myConfig.lora.devAddr = doc["devAddr"].as<String>();
+            myConfig.lora.appSKey = doc["appSKey"].as<String>();
+            myConfig.lora.nwkSKey = doc["nwkSKey"].as<String>();
+
             saveConfig();
-            request->send(200, "text/plain", "LoRa Config Sauvegardee");
-        } else {
-            request->send(400, "text/plain", "JSON Invalide");
+            printConfig();
+            request->send(200, "text/plain", "OK");
+        }
+        else
+        {
+            request->send(400, "text/plain", "Erreur JSON");
         }
     }
 }
 
 void handleLoracamBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
-    if (index == 0 && len == total) {
+    if (index == 0 && len == total)
+    {
         JsonDocument doc;
-        if (!deserializeJson(doc, data, len)) {
-            if (doc.containsKey("quality")) myConfig.quality = doc["quality"].as<int>();
-            if (doc.containsKey("mss")) myConfig.mss = doc["mss"].as<int>();
-            
+        if (!deserializeJson(doc, data, len))
+        {
+            myConfig.loracam.quality = doc["quality"].as<int>();
+            myConfig.loracam.mss = doc["mss"].as<int>();
+
             saveConfig();
-            request->send(200, "text/plain", "LoRaCam Config Sauvegardee");
-        } else {
-            request->send(400, "text/plain", "JSON Invalide");
+            printConfig();
+            request->send(200, "text/plain", "OK");
+        }
+        else
+        {
+            request->send(400, "text/plain", "Erreur JSON");
         }
     }
 }
 
 void startWebServer()
 {
-    if (!LittleFS.begin(true)) {
-        Serial.println("Erreur LittleFS");
-        return;
-    }
-
+    initConfig();
+    printConfig(); 
     server.on("/", HTTP_GET, handleIndex);
     server.on("/api/config", HTTP_GET, getConfig);
     server.on("/api/config/default", HTTP_GET, getDefaultConfig);
-
-    server.on("/api/config/wifi", HTTP_POST, handleEmptyRequest, NULL, handleWifiBody);
     server.on("/api/config/lora", HTTP_POST, handleEmptyRequest, NULL, handleLoraBody);
     server.on("/api/config/loracam", HTTP_POST, handleEmptyRequest, NULL, handleLoracamBody);
-
     server.onNotFound(handleNotFound);
     server.begin();
-    Serial.println("Serveur HTTP (port 8080) demarre");
 }
