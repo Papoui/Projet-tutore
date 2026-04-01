@@ -1,10 +1,3 @@
-
-const cameraURL = `http://${window.location.hostname}:80`;
-function onCameraClick(event) {
-    event.preventDefault();
-    window.location.href = cameraURL;
-}
-
 // Fonction générique pour faire un POST avec des données JSON
 async function postHTTP(url, data) {
     const response = await fetch(url, {

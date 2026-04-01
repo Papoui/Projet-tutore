@@ -13,32 +13,35 @@
     
     <nav class="nav">
         <div class="nav-left">
-            <a class="brand" href="#">
+            <a class="brand" href="index.html">
                 <img src="agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
             </a>
             <div class="tabs" id="nav-tabs">
                 <a href="wifi.html">Paramètres Wifi</a>
                 <a href="lora.html">Paramètres LoRa</a>
-                <a href="loracam.html">Paramètres LoRaCam</a>
-                <a href="#" onclick="onCameraClick(event)">Caméra</a>
+                <a href="loracam.html" class="active">Paramètres LoRaCam</a>
+                <a href="camera.html">Caméra</a>
             </div>
         </div>
     </nav>
     
-    <h2>Paramètres LoRaCam</h2>
-    <form onsubmit="onSubmit(event)">
-        <fieldset>
-            <p>
-                <label>Quality Factor</label>
-                <input type="number" name="quality" min="5" max="100" value="20">
-            </p>
-            <p>
-                <label>MSS</label>
-                <input type="number" name="mss" min="20" max="240" value="64">
-            </p>
-            <button type="submit" class="button primary">Sauvegarder</button>
-        </fieldset>
-    </form>
+    <main class="container">
+        <h2>Paramètres LoRaCam</h2>
+        <form onsubmit="onSubmit(event)">
+            <fieldset>
+                <p>
+                    <label>Quality Factor</label>
+                    <input type="number" name="quality" min="5" max="100" value="20">
+                </p>
+                <p>
+                    <label>MSS</label>
+                    <input type="number" name="mss" min="20" max="240" value="64">
+                </p>
+                <button type="submit" class="button primary">Sauvegarder</button>
+            </fieldset>
+        </form>
+    </main>
+
 
     <script src="script.js"></script>
 

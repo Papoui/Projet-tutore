@@ -14,36 +14,35 @@
     
     <nav class="nav">
         <div class="nav-left">
-            <a class="brand" href="#">
+            <a class="brand" href="index.html">
                 <img src="agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
             </a>
             <div class="tabs" id="nav-tabs">
-                <a href="wifi.html">Paramètres Wifi</a>
+                <a href="wifi.html" class="active">Paramètres Wifi</a>
                 <a href="lora.html">Paramètres LoRa</a>
                 <a href="loracam.html">Paramètres LoRaCam</a>
-                <a href="#" onclick="onCameraClick(event)">Caméra</a>
+                <a href="camera.html">Caméra</a>
             </div>
         </div>
     </nav>
 
-    <h2>Paramètres Wifi</h2>
-    <form onsubmit="onSubmit(event)">
-        <fieldset>
-            <p>
-                <label>SSID</label>
-                <input type="text" name="ssid">
-            </p>
-            <p>
-                <label>Mot de passe</label>
-                <input type="text" name="password">
-            </p>
-            <p>
-                <label>Mode point d'accès</label>
-                <input type="checkbox" name="accessPoint">
-            </p>
-            <button type="submit" class="button primary">Sauvegarder</button>
-        </fieldset>
-    </form>
+    <main class="container">
+        <h2>Paramètres Wifi</h2>
+        <form onsubmit="onSubmit(event)">
+            <fieldset>
+                <p>
+                    <label>SSID</label>
+                    <input type="text" name="ssid">
+                </p>
+                <p>
+                    <label>Mot de passe</label>
+                    <input type="text" name="password">
+                </p>
+                <button type="submit" class="button primary">Sauvegarder</button>
+            </fieldset>
+        </form>
+    </main>
+
     
     <script src="script.js"></script>
 
@@ -68,7 +67,6 @@
                 const data = await getHTTP('/api/config');
                 form.ssid.value = data.ssid || '';
                 form.password.value = data.password || '';
-                form.accessPoint.checked = data.accessPoint || false;
             } catch (error) {
                 console.error(error);
                 alert('Erreur de chargement des paramètres Wi-Fi');

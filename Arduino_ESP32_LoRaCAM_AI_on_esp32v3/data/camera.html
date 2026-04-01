@@ -7,29 +7,37 @@
     <link rel="stylesheet" href="chota.min.css">
     <link rel="stylesheet" href="colors.css">
     <link rel="stylesheet" href="style.css">
+    <style>
+        iframe {
+            width: 100%;
+            flex-grow: 1;
+            border: none;
+        }
+    </style>
 </head>
-
 <body>
-    
+
     <nav class="nav">
         <div class="nav-left">
-            <a class="brand" href="#">
+            <a class="brand" href="index.html">
                 <img src="agrifuture_logo.png" alt="AgriFuture Logo" style="max-height: 40px;">
             </a>
             <div class="tabs" id="nav-tabs">
                 <a href="wifi.html">Paramètres Wifi</a>
                 <a href="lora.html">Paramètres LoRa</a>
                 <a href="loracam.html">Paramètres LoRaCam</a>
-                <a href="#" onclick="onCameraClick(event)">Caméra</a>
+                <a href="camera.html" class="active">Caméra</a>
             </div>
         </div>
     </nav>
+
+    <iframe frameborder="0"></iframe>
     
-    <h1>Bienvenue</h1>
-    <p>Sélectionnez une rubrique dans le menu ci-dessus pour configurer votre appareil.</p>
-
-    <script src="script.js"></script>
-
+    <script>
+        const cameraURL = `http://${window.location.hostname}:80`;
+        const iframe = document.querySelector('iframe');
+        iframe.src = cameraURL;
+    </script>
 </body>
 
 </html>
