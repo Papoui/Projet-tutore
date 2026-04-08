@@ -1,4 +1,4 @@
-#include "config_service.h"
+#include "lora_config_service.h"
 #include <ArduinoJson.h>
 #include <ESPAsyncWebServer.h>
 #include <LittleFS.h>
@@ -15,24 +15,6 @@ void parseConfigJson(JsonDocument &doc, const Config &c)
     doc["lora"]["nwkSKey"] = c.lora.nwkSKey;
     doc["loracam"]["quality"] = c.loracam.quality;
     doc["loracam"]["mss"] = c.loracam.mss;
-}
-
-void getConfig(AsyncWebServerRequest *request)
-{
-    JsonDocument doc;
-    parseConfigJson(doc, myConfig);
-    String response;
-    serializeJson(doc, response);
-    request->send(200, "application/json", response);
-}
-
-void getDefaultConfig(AsyncWebServerRequest *request)
-{
-    JsonDocument doc;
-    parseConfigJson(doc, DEFAULT_CONFIG);
-    String response;
-    serializeJson(doc, response);
-    request->send(200, "application/json", response);
 }
 
 void handleIndex(AsyncWebServerRequest *request)
@@ -62,7 +44,25 @@ void handleEmptyRequest(AsyncWebServerRequest *request)
 {
 }
 
-void handleLoraBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+void getConfig(AsyncWebServerRequest *request)
+{
+    JsonDocument doc;
+    parseConfigJson(doc, myConfig);
+    String response;
+    serializeJson(doc, response);
+    request->send(200, "application/json", response);
+}
+
+void getDefaultConfig(AsyncWebServerRequest *request)
+{
+    JsonDocument doc;
+    parseConfigJson(doc, DEFAULT_LORA_CONFIG);
+    String response;
+    serializeJson(doc, response);
+    request->send(200, "application/json", response);
+}
+
+void postConfigLora(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
     if (index == 0 && len == total)
     {
@@ -77,7 +77,6 @@ void handleLoraBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, s
             myConfig.lora.nwkSKey = doc["nwkSKey"].as<String>();
 
             saveConfig();
-            printConfig();
             request->send(200, "text/plain", "OK");
         }
         else
@@ -87,7 +86,7 @@ void handleLoraBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, s
     }
 }
 
-void handleLoracamBody(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+void postConfigLoracam(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
     if (index == 0 && len == total)
     {
@@ -98,7 +97,6 @@ void handleLoracamBody(AsyncWebServerRequest *request, uint8_t *data, size_t len
             myConfig.loracam.mss = doc["mss"].as<int>();
 
             saveConfig();
-            printConfig();
             request->send(200, "text/plain", "OK");
         }
         else
@@ -108,15 +106,21 @@ void handleLoracamBody(AsyncWebServerRequest *request, uint8_t *data, size_t len
     }
 }
 
+void postResetConfig(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+{
+    resetMemory();
+}
+
 void startWebServer()
 {
     initConfig();
-    printConfig(); 
+    printConfig();
     server.on("/", HTTP_GET, handleIndex);
-    server.on("/api/config", HTTP_GET, getConfig);
-    server.on("/api/config/default", HTTP_GET, getDefaultConfig);
-    server.on("/api/config/lora", HTTP_POST, handleEmptyRequest, NULL, handleLoraBody);
-    server.on("/api/config/loracam", HTTP_POST, handleEmptyRequest, NULL, handleLoracamBody);
+    server.on("/api/lora-config/default", HTTP_GET, getDefaultConfig);
+    server.on("/api/lora-config", HTTP_GET, getConfig);
+    server.on("/api/lora-config/lora", HTTP_POST, handleEmptyRequest, NULL, postConfigLora);
+    server.on("/api/lora-config/loracam", HTTP_POST, handleEmptyRequest, NULL, postConfigLoracam);
+    server.on("/api/lora-config/reset", HTTP_POST, handleEmptyRequest, NULL, postResetConfig);
     server.onNotFound(handleNotFound);
     server.begin();
 }

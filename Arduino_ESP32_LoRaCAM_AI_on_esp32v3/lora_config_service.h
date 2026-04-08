@@ -1,5 +1,5 @@
-#ifndef CONFIG_SERVICE_H
-#define CONFIG_SERVICE_H
+#ifndef LORA_CONFIG_SERVICE_H
+#define LORA_CONFIG_SERVICE_H
 
 #include <Arduino.h>
 
@@ -26,7 +26,7 @@ struct Config
 };
 
 extern Config myConfig;
-extern const Config DEFAULT_CONFIG;
+extern const Config DEFAULT_LORA_CONFIG;
 
 void initConfig();
 void saveConfig();

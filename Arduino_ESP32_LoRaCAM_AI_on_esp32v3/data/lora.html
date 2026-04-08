@@ -91,7 +91,7 @@
             const formData = new FormData(event.target);
             const data = Object.fromEntries(formData.entries());
             try {
-                await postHTTP('/api/config/lora', data);
+                await postHTTP('/api/lora-config/lora', data);
                 alert('Paramètres LoRa sauvegardés');
             } catch (error) {
                 console.error(error);
@@ -101,7 +101,7 @@
 
         async function onLoad() {
             try {
-                const data = await getHTTP('/api/config');
+                const data = await getHTTP('/api/lora-config');
                 console.log(data);
                 form.bw.value = data.lora.bw;
                 form.sf.value = data.lora.sf;

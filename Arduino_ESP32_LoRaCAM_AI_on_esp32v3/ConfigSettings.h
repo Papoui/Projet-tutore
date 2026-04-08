@@ -2,7 +2,7 @@
 #define CONFIG_SETTINGS
 
 // you can use WITH_WEB_SERVER and CUSTOM_CAM_CONFIG to fine tune camera settings
-//#define WITH_WEB_SERVER
+#define WITH_WEB_SERVER
 //#define ORIGINAL_CAM_CONFIG
 #define CUSTOM_CAM_CONFIG
 

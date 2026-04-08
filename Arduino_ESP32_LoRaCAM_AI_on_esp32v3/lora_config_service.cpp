@@ -1,11 +1,11 @@
-#include "config_service.h"
+#include "lora_config_service.h"
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
 Config myConfig;
 const char *configFilePath = "/lora_config.json";
 
-const Config DEFAULT_CONFIG = {
+const Config DEFAULT_LORA_CONFIG = {
     {
         "125", // bw
         "12", // sf
@@ -29,7 +29,7 @@ void initConfig()
 
 void loadFromMemory()
 {
-    myConfig = DEFAULT_CONFIG;
+    myConfig = DEFAULT_LORA_CONFIG;
 
     if (!LittleFS.exists(configFilePath))
     {
@@ -48,6 +48,8 @@ void loadFromMemory()
 
     if (error)
     {
+        Serial.print("Erreur JSON : ");
+        Serial.println(error.c_str());
         return;
     }
     
@@ -86,6 +88,7 @@ void saveConfig()
 
 void printConfig()
 {
+    Serial.println("--- Configuration lora actuel ---");
     Serial.print("BW : ");
     Serial.println(myConfig.lora.bw);
     Serial.print("SF : ");
@@ -102,6 +105,7 @@ void printConfig()
     Serial.println(myConfig.loracam.quality);
     Serial.print("MSS : ");
     Serial.println(myConfig.loracam.mss);
+    Serial.println("---------------------------------");
 }
 
 void resetMemory()
@@ -110,5 +114,5 @@ void resetMemory()
     {
         LittleFS.remove(configFilePath);
     }
-    myConfig = DEFAULT_CONFIG;
+    myConfig = DEFAULT_LORA_CONFIG;
 }
