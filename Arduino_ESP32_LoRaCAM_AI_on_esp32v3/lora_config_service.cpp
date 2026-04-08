@@ -48,7 +48,6 @@ void loadFromMemory()
 
     if (error)
     {
-        Serial.print("Erreur JSON : ");
         Serial.println(error.c_str());
         return;
     }
