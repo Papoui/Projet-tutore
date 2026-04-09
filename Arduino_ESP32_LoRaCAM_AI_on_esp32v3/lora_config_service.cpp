@@ -2,10 +2,10 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
-Config myConfig;
+LoraConfig loraConfig;
 const char *configFilePath = "/lora_config.json";
 
-const Config DEFAULT_LORA_CONFIG = {
+const LoraConfig DEFAULT_LORA_CONFIG = {
     {
         "125", // bw
         "12", // sf
@@ -24,12 +24,12 @@ void initConfig()
 {
     if (!LittleFS.begin(true))
         return;
-    loadFromMemory();
+    loadConfig();
 }
 
-void loadFromMemory()
+void loadConfig()
 {
-    myConfig = DEFAULT_LORA_CONFIG;
+    loraConfig = DEFAULT_LORA_CONFIG;
 
     if (!LittleFS.exists(configFilePath))
     {
@@ -52,15 +52,15 @@ void loadFromMemory()
         return;
     }
     
-    myConfig.lora.bw = doc["lora"]["bw"].as<String>();
-    myConfig.lora.sf = doc["lora"]["sf"].as<String>();
-    myConfig.lora.frequency = doc["lora"]["frequency"].as<String>();
-    myConfig.lora.devAddr = doc["lora"]["devAddr"].as<String>();
-    myConfig.lora.appSKey = doc["lora"]["appSKey"].as<String>();
-    myConfig.lora.nwkSKey = doc["lora"]["nwkSKey"].as<String>();
+    loraConfig.lora.bw = doc["lora"]["bw"].as<String>();
+    loraConfig.lora.sf = doc["lora"]["sf"].as<String>();
+    loraConfig.lora.frequency = doc["lora"]["frequency"].as<String>();
+    loraConfig.lora.devAddr = doc["lora"]["devAddr"].as<String>();
+    loraConfig.lora.appSKey = doc["lora"]["appSKey"].as<String>();
+    loraConfig.lora.nwkSKey = doc["lora"]["nwkSKey"].as<String>();
 
-    myConfig.loracam.quality = doc["loracam"]["quality"].as<int>();
-    myConfig.loracam.mss = doc["loracam"]["mss"].as<int>();
+    loraConfig.loracam.quality = doc["loracam"]["quality"].as<int>();
+    loraConfig.loracam.mss = doc["loracam"]["mss"].as<int>();
 }
 
 void saveConfig()
@@ -72,14 +72,14 @@ void saveConfig()
     }
 
     JsonDocument doc;
-    doc["lora"]["bw"] = myConfig.lora.bw;
-    doc["lora"]["sf"] = myConfig.lora.sf;
-    doc["lora"]["frequency"] = myConfig.lora.frequency;
-    doc["lora"]["devAddr"] = myConfig.lora.devAddr;
-    doc["lora"]["appSKey"] = myConfig.lora.appSKey;
-    doc["lora"]["nwkSKey"] = myConfig.lora.nwkSKey;
-    doc["loracam"]["quality"] = myConfig.loracam.quality;
-    doc["loracam"]["mss"] = myConfig.loracam.mss;
+    doc["lora"]["bw"] = loraConfig.lora.bw;
+    doc["lora"]["sf"] = loraConfig.lora.sf;
+    doc["lora"]["frequency"] = loraConfig.lora.frequency;
+    doc["lora"]["devAddr"] = loraConfig.lora.devAddr;
+    doc["lora"]["appSKey"] = loraConfig.lora.appSKey;
+    doc["lora"]["nwkSKey"] = loraConfig.lora.nwkSKey;
+    doc["loracam"]["quality"] = loraConfig.loracam.quality;
+    doc["loracam"]["mss"] = loraConfig.loracam.mss;
 
     serializeJson(doc, file);
     file.close();
@@ -89,29 +89,29 @@ void printConfig()
 {
     Serial.println("--- Configuration lora actuel ---");
     Serial.print("BW : ");
-    Serial.println(myConfig.lora.bw);
+    Serial.println(loraConfig.lora.bw);
     Serial.print("SF : ");
-    Serial.println(myConfig.lora.sf);
+    Serial.println(loraConfig.lora.sf);
     Serial.print("Frequency : ");
-    Serial.println(myConfig.lora.frequency);
+    Serial.println(loraConfig.lora.frequency);
     Serial.print("DevAddr : ");
-    Serial.println(myConfig.lora.devAddr);
+    Serial.println(loraConfig.lora.devAddr);
     Serial.print("AppSKey : ");
-    Serial.println(myConfig.lora.appSKey);
+    Serial.println(loraConfig.lora.appSKey);
     Serial.print("NwkSKey : ");
-    Serial.println(myConfig.lora.nwkSKey);
+    Serial.println(loraConfig.lora.nwkSKey);
     Serial.print("Quality : ");
-    Serial.println(myConfig.loracam.quality);
+    Serial.println(loraConfig.loracam.quality);
     Serial.print("MSS : ");
-    Serial.println(myConfig.loracam.mss);
+    Serial.println(loraConfig.loracam.mss);
     Serial.println("---------------------------------");
 }
 
-void resetMemory()
+void resetConfig()
 {
     if (LittleFS.exists(configFilePath))
     {
         LittleFS.remove(configFilePath);
     }
-    myConfig = DEFAULT_LORA_CONFIG;
+    loraConfig = DEFAULT_LORA_CONFIG;
 }

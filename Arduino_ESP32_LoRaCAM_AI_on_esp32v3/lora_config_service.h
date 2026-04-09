@@ -2,8 +2,9 @@
 #define LORA_CONFIG_SERVICE_H
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 
-struct LoraConfig
+struct LoraData
 {
     String bw;
     String sf;
@@ -13,25 +14,25 @@ struct LoraConfig
     String nwkSKey;
 };
 
-struct LoraCamConfig
+struct LoraCamData
 {
     int quality;
     int mss;
 };
 
-struct Config
+struct LoraConfig
 {
-    LoraConfig lora;
-    LoraCamConfig loracam;
+    LoraData lora;
+    LoraCamData loracam;
 };
 
-extern Config myConfig;
-extern const Config DEFAULT_LORA_CONFIG;
+extern LoraConfig loraConfig;
+extern const LoraConfig DEFAULT_LORA_CONFIG;
 
 void initConfig();
 void saveConfig();
-void loadFromMemory();
+void loadConfig();
+void resetConfig();
 void printConfig();
-void resetMemory();
 
 #endif

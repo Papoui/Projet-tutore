@@ -5,16 +5,16 @@
 
 AsyncWebServer server(8080);
 
-void parseConfigJson(JsonDocument &doc, const Config &c)
+void parseConfigJson(JsonDocument &doc, const LoraConfig &config)
 {
-    doc["lora"]["bw"] = c.lora.bw;
-    doc["lora"]["sf"] = c.lora.sf;
-    doc["lora"]["frequency"] = c.lora.frequency;
-    doc["lora"]["devAddr"] = c.lora.devAddr;
-    doc["lora"]["appSKey"] = c.lora.appSKey;
-    doc["lora"]["nwkSKey"] = c.lora.nwkSKey;
-    doc["loracam"]["quality"] = c.loracam.quality;
-    doc["loracam"]["mss"] = c.loracam.mss;
+    doc["lora"]["bw"] = config.lora.bw;
+    doc["lora"]["sf"] = config.lora.sf;
+    doc["lora"]["frequency"] = config.lora.frequency;
+    doc["lora"]["devAddr"] = config.lora.devAddr;
+    doc["lora"]["appSKey"] = config.lora.appSKey;
+    doc["lora"]["nwkSKey"] = config.lora.nwkSKey;
+    doc["loracam"]["quality"] = config.loracam.quality;
+    doc["loracam"]["mss"] = config.loracam.mss;
 }
 
 void handleIndex(AsyncWebServerRequest *request)
@@ -47,7 +47,7 @@ void handleEmptyRequest(AsyncWebServerRequest *request)
 void getConfig(AsyncWebServerRequest *request)
 {
     JsonDocument doc;
-    parseConfigJson(doc, myConfig);
+    parseConfigJson(doc, loraConfig);
     String response;
     serializeJson(doc, response);
     request->send(200, "application/json", response);
@@ -69,19 +69,19 @@ void postConfigLora(AsyncWebServerRequest *request, uint8_t *data, size_t len, s
         JsonDocument doc;
         if (!deserializeJson(doc, data, len))
         {
-            myConfig.lora.bw = doc["bw"].as<String>();
-            myConfig.lora.sf = doc["sf"].as<String>();
-            myConfig.lora.frequency = doc["frequency"].as<String>();
-            myConfig.lora.devAddr = doc["devAddr"].as<String>();
-            myConfig.lora.appSKey = doc["appSKey"].as<String>();
-            myConfig.lora.nwkSKey = doc["nwkSKey"].as<String>();
+            loraConfig.lora.bw = doc["bw"].as<String>();
+            loraConfig.lora.sf = doc["sf"].as<String>();
+            loraConfig.lora.frequency = doc["frequency"].as<String>();
+            loraConfig.lora.devAddr = doc["devAddr"].as<String>();
+            loraConfig.lora.appSKey = doc["appSKey"].as<String>();
+            loraConfig.lora.nwkSKey = doc["nwkSKey"].as<String>();
 
             saveConfig();
-            request->send(200, "text/plain", "OK");
+            request->send(200);
         }
         else
         {
-            request->send(400, "text/plain", "Erreur JSON");
+            request->send(500);
         }
     }
 }
@@ -93,22 +93,23 @@ void postConfigLoracam(AsyncWebServerRequest *request, uint8_t *data, size_t len
         JsonDocument doc;
         if (!deserializeJson(doc, data, len))
         {
-            myConfig.loracam.quality = doc["quality"].as<int>();
-            myConfig.loracam.mss = doc["mss"].as<int>();
+            loraConfig.loracam.quality = doc["quality"].as<int>();
+            loraConfig.loracam.mss = doc["mss"].as<int>();
 
             saveConfig();
-            request->send(200, "text/plain", "OK");
+            request->send(200);
         }
         else
         {
-            request->send(400, "text/plain", "Erreur JSON");
+            request->send(500);
         }
     }
 }
 
 void postResetConfig(AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
 {
-    resetMemory();
+    resetConfig();
+    request->send(200);
 }
 
 void startWebServer()
