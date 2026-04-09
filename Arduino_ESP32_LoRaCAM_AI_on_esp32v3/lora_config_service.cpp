@@ -78,7 +78,7 @@ void saveConfig()
     File file = LittleFS.open(configFilePath, "w");
     if (!file) 
     {
-        Serial.printf("LittleFS : %s open failed", configFilePath)
+        Serial.printf("LittleFS : %s open failed", configFilePath);
         return;
     }
 
