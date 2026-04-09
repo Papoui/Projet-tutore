@@ -2,6 +2,13 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
+// ---------------------------------- Docs ----------------------------------
+
+// https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html
+// https://arduinojson.org
+
+// ---------------------------------- Constantes et variables ----------------------------------
+
 LoraConfig loraConfig;
 const char *configFilePath = "/lora_config.json";
 
@@ -20,10 +27,14 @@ const LoraConfig DEFAULT_LORA_CONFIG = {
     }
 };
 
+// ---------------------------------- Fonctions ----------------------------------
+
 void initConfig()
 {
-    if (!LittleFS.begin(true))
+    if (!LittleFS.begin())
+    {
         return;
+    }
     loadConfig();
 }
 
@@ -43,12 +54,11 @@ void loadConfig()
     }
     
     JsonDocument doc;
+    // https://arduinojson.org/v7/api/json/deserializejson/
     DeserializationError error = deserializeJson(doc, file);
     file.close();
-
     if (error)
     {
-        Serial.println(error.c_str());
         return;
     }
     
@@ -68,6 +78,7 @@ void saveConfig()
     File file = LittleFS.open(configFilePath, "w");
     if (!file) 
     {
+        Serial.printf("LittleFS : %s open failed", configFilePath)
         return;
     }
 
@@ -81,8 +92,19 @@ void saveConfig()
     doc["loracam"]["quality"] = loraConfig.loracam.quality;
     doc["loracam"]["mss"] = loraConfig.loracam.mss;
 
+    // https://arduinojson.org/v7/api/json/serializejson/#write-to-a-file
     serializeJson(doc, file);
+
     file.close();
+}
+
+void resetConfig()
+{
+    if (LittleFS.exists(configFilePath))
+    {
+        LittleFS.remove(configFilePath);
+    }
+    loraConfig = DEFAULT_LORA_CONFIG;
 }
 
 void printConfig()
@@ -105,13 +127,4 @@ void printConfig()
     Serial.print("MSS : ");
     Serial.println(loraConfig.loracam.mss);
     Serial.println("---------------------------------");
-}
-
-void resetConfig()
-{
-    if (LittleFS.exists(configFilePath))
-    {
-        LittleFS.remove(configFilePath);
-    }
-    loraConfig = DEFAULT_LORA_CONFIG;
 }

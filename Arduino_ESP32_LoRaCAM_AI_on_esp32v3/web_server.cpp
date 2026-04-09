@@ -1,10 +1,15 @@
 #include "lora_config_service.h"
-#include <ArduinoJson.h>
-#include <ESPAsyncWebServer.h>
-#include <LittleFS.h>
+#include <ArduinoJson.h> 
 #include "AsyncJson.h"
+#include <ESPAsyncWebServer.h> 
+#include <LittleFS.h>
 
-AsyncWebServer server(8080);
+// ---------------------------------- Docs ----------------------------------
+
+// https://arduinojson.org
+// https://esp32async.github.io/ESPAsyncWebServer
+
+// ---------------------------------- Utils ----------------------------------
 
 void parseConfigJson(JsonDocument &doc, const LoraConfig &config)
 {
@@ -18,18 +23,18 @@ void parseConfigJson(JsonDocument &doc, const LoraConfig &config)
     doc["loracam"]["mss"] = config.loracam.mss;
 }
 
-void handleIndex(AsyncWebServerRequest *request)
+// ---------------------------------- Routes des fichiers ----------------------------------
+
+// https://esp32async.github.io/ESPAsyncWebServer/responses/#respond-with-content-coming-from-a-file
+
+void getIndex(AsyncWebServerRequest *request)
 {
-    request->send(LittleFS, "/index.html", "text/html");
+    request->send(LittleFS, "/index.html");
 }
 
-void handleNotFound(AsyncWebServerRequest *request)
+// Quand la route n'est pas définit, on cherche un fichier, s'il existe on le renvoie, sinon on renvoie index.html
+void onNotFound(AsyncWebServerRequest *request)
 {
-    if (request->method() == HTTP_OPTIONS)
-    {
-        request->send(200);
-        return;
-    }
     String path = request->url();
     if (LittleFS.exists(path))
     {
@@ -37,27 +42,33 @@ void handleNotFound(AsyncWebServerRequest *request)
     }
     else
     {
-        request->send(LittleFS, "/index.html", "text/html");
+        request->send(LittleFS, "/index.html");
     }
 }
 
+// ---------------------------------- Routes de configuration ----------------------------------
+
+// https://esp32async.github.io/ESPAsyncWebServer/responses/#arduinojson-basic-response
+
 void getConfig(AsyncWebServerRequest *request)
 {
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
     JsonDocument doc;
     parseConfigJson(doc, loraConfig);
-    String response;
-    serializeJson(doc, response);
-    request->send(200, "application/json", response);
+    serializeJson(doc, *response);
+    request->send(response);
 }
 
-void getDefaultConfig(AsyncWebServerRequest *request)
+void getConfigDefault(AsyncWebServerRequest *request)
 {
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
     JsonDocument doc;
     parseConfigJson(doc, DEFAULT_LORA_CONFIG);
-    String response;
-    serializeJson(doc, response);
-    request->send(200, "application/json", response);
+    serializeJson(doc, *response);
+    request->send(response);
 }
+
+// https://esp32async.github.io/ESPAsyncWebServer/requests/#json-body-handling-with-arduinojson
 
 void postConfigLora(AsyncWebServerRequest *request, JsonVariant &json)
 {
@@ -83,11 +94,17 @@ void postConfigLoracam(AsyncWebServerRequest *request, JsonVariant &json)
     request->send(200);
 }
 
-void postResetConfig(AsyncWebServerRequest *request)
+void postConfigReset(AsyncWebServerRequest *request)
 {
     resetConfig();
     request->send(200);
 }
+
+// ---------------------------------- Lancement ----------------------------------
+
+// https://esp32async.github.io/ESPAsyncWebServer/setup/
+
+AsyncWebServer server(8080);
 
 void startWebServer()
 {
@@ -97,13 +114,13 @@ void startWebServer()
     AsyncCallbackJsonWebHandler* loraHandler = new AsyncCallbackJsonWebHandler("/api/lora-config/lora", postConfigLora);
     AsyncCallbackJsonWebHandler* loracamHandler = new AsyncCallbackJsonWebHandler("/api/lora-config/loracam", postConfigLoracam);
     
-    server.on("/", HTTP_GET, handleIndex);
-    server.on("/api/lora-config/default", HTTP_GET, getDefaultConfig);
+    server.on("/", HTTP_GET, getIndex);
+    server.on("/api/lora-config/default", HTTP_GET, getConfigDefault);
     server.on("/api/lora-config", HTTP_GET, getConfig);
     server.addHandler(loraHandler);
     server.addHandler(loracamHandler);
-    server.on("/api/lora-config/reset", HTTP_POST, postResetConfig);
-    server.onNotFound(handleNotFound);
+    server.on("/api/lora-config/reset", HTTP_POST, postConfigReset);
+    server.onNotFound(onNotFound);
     
     server.begin();
 }
