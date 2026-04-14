@@ -9,9 +9,9 @@ struct LoraData
     String bw;
     String sf;
     String frequency;
-    unsigned char devAddr[4];
-    unsigned char appSKey[16];
-    unsigned char nwkSKey[16];
+    String devAddr;
+    String appSKey;
+    String nwkSKey;
 };
 
 struct LoraCamData
