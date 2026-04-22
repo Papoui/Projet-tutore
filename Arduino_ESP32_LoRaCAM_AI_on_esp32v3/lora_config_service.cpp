@@ -17,9 +17,9 @@ const LoraConfig DEFAULT_LORA_CONFIG = {
         "125", // bw
         "12", // sf
         "868.1", // fréquence 
-        {0x26, 0x01, 0x2D, 0xAA}, // device address
-        {0x23, 0x15, 0x8D, 0x3B, 0xBC, 0x31, 0xE6, 0xAF, 0x67, 0x0D, 0x19, 0x5B, 0x5A, 0xED, 0x55, 0x25}, // AppSKey 
-        {0x23, 0x15, 0x8D, 0x3B, 0xBC, 0x31, 0xE6, 0xAF, 0x67, 0x0D, 0x19, 0x5B, 0x5A, 0xED, 0x55, 0x25} // NwkSKey
+        "26012DAA", // device address
+        "23158D3BBC31E6AF670D195B5AED5525", // AppSKey 
+        "23158D3BBC31E6AF670D195B5AED5525" // NwkSKey
     },
     {
         20, // Quality Factor
@@ -65,9 +65,9 @@ void loadConfig()
     loraConfig.lora.bw = doc["lora"]["bw"].as<String>();
     loraConfig.lora.sf = doc["lora"]["sf"].as<String>();
     loraConfig.lora.frequency = doc["lora"]["frequency"].as<String>();
-    loraConfig.lora.devAddr = doc["lora"]["devAddr"].as<unsigned char[4]>();
-    loraConfig.lora.appSKey = doc["lora"]["appSKey"].as<unsigned char[16]>();
-    loraConfig.lora.nwkSKey = doc["lora"]["nwkSKey"].as<unsigned char[16]>();
+    loraConfig.lora.devAddr = doc["lora"]["devAddr"].as<String>();
+    loraConfig.lora.appSKey = doc["lora"]["appSKey"].as<String>();
+    loraConfig.lora.nwkSKey = doc["lora"]["nwkSKey"].as<String>();
 
     loraConfig.loracam.quality = doc["loracam"]["quality"].as<int>();
     loraConfig.loracam.mss = doc["loracam"]["mss"].as<int>();
