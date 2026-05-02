@@ -34,5 +34,6 @@ void saveConfig();
 void loadConfig();
 void resetConfig();
 void printConfig();
+unsigned char stringToUnsignedChar();
 
 #endif
