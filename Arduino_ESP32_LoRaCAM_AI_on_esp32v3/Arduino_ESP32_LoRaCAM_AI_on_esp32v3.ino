@@ -716,8 +716,9 @@ void setup() {
     // This boolean var allows to link the bool to an external event like something happening on the board's pins (button pushed...)
     bool isInWifiMode = true;
     if(isInWifiMode){
-        WiFi.begin(myConfig.ssid, myConfig.password);
-        Serial.printf("Tentative de connexion au réseau %s...\n", myConfig.ssid);
+
+        WiFi.begin(ssid, password);
+        Serial.printf("Tentative de connexion au réseau %s...\n", ssid);
         for (int i = 0; i < 5 && WiFi.status() != WL_CONNECTED; i++)
         {
             delay(500);
@@ -725,8 +726,8 @@ void setup() {
         if (WiFi.status() != WL_CONNECTED)
         {
 
-            Serial.printf("Impossible de se connecter au réseau en tant que client, passage en mode AP.\n", myConfig.ssid);
-            Serial.printf(myConfig.ssid);
+            Serial.printf("Impossible de se connecter au réseau en tant que client, passage en mode AP.\n", ssid);
+            Serial.printf(ssid);
             WiFi.disconnect(true);
 
             WiFi.mode(WIFI_AP);
