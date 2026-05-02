@@ -713,37 +713,16 @@ void setup() {
     Serial.println(BOOT_START_MSG);
 
 #if defined(WITH_WEB_SERVER)
-    // This boolean var allows to link the bool to an external event like something happening on the board's pins (button pushed...)
-    bool isInWifiMode = true;
-    if(isInWifiMode){
+    WiFi.begin(ssid, password);
+    WiFi.setSleep(false);
 
-        WiFi.begin(ssid, password);
-        Serial.printf("Tentative de connexion au réseau %s...\n", ssid);
-        for (int i = 0; i < 5 && WiFi.status() != WL_CONNECTED; i++)
-        {
-            delay(500);
-        }
-        if (WiFi.status() != WL_CONNECTED)
-        {
-
-            Serial.printf("Impossible de se connecter au réseau en tant que client, passage en mode AP.\n", ssid);
-            Serial.printf(ssid);
-            WiFi.disconnect(true);
-
-            WiFi.mode(WIFI_AP);
-            WiFi.softAP(ssid, password);
-            Serial.printf("Point d'accès : %s\n", ssid);
-
-            Serial.printf("Serveur web prêt ! rendez vous sur 'http://%s' pour vous connecter.",
-                        WiFi.softAPIP().toString());
-        }
-        else
-        {
-            Serial.printf("Serveur web prêt ! rendez vous sur 'http://%s' pour vous connecter.", WiFi.localIP().toString());
-        }
-        WiFi.setSleep(false);
+    Serial.print("WiFi connecting");
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
     }
-    
+    Serial.println("");
+    Serial.println("WiFi connected");
 
     startCameraServer();
     startWebServer();
