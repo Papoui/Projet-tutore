@@ -713,16 +713,21 @@ void setup() {
     Serial.println(BOOT_START_MSG);
 
 #if defined(WITH_WEB_SERVER)
-    WiFi.begin(ssid, password);
-    WiFi.setSleep(false);
+    // This boolean var allows to link the bool to an external event like something happening on the board's pins (button pushed...)
+    bool isInWifiMode = true;
+    if(isInWifiMode){
+        WiFi.begin(ssid, password);
+        WiFi.setSleep(false);
 
-    Serial.print("WiFi connecting");
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
+        Serial.print("WiFi connecting");
+        while (WiFi.status() != WL_CONNECTED) {
+            delay(500);
+            Serial.print(".");
+        }
+        Serial.println("");
+        Serial.println("WiFi connected");
     }
-    Serial.println("");
-    Serial.println("WiFi connected");
+    
 
     startCameraServer();
     startWebServer();
