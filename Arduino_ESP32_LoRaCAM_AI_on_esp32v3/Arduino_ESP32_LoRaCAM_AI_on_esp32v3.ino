@@ -89,8 +89,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "SFR_6B58";
-const char *password = "38xbgu4tiv76tyah6rgk";
+const char *ssid = "Bbox-F791B483";
+const char *password = "7T5VdT4xr7PSchb6rS";
 
 // const char *ssid = "freebox_TYWCSM";   
 // const char *password = "copernic";
