@@ -10,7 +10,7 @@
 // ---------------------------------- Constantes et variables ----------------------------------
 
 LoraConfig loraConfig;
-const char *configFilePath = "/lora_config.json";
+const char *LoraConfigFilePath = "/lora_config.json";
 
 const LoraConfig DEFAULT_LORA_CONFIG = {
     {
@@ -42,12 +42,12 @@ void loadLoraConfig()
 {
     loraConfig = DEFAULT_LORA_CONFIG;
 
-    if (!LittleFS.exists(configFilePath))
+    if (!LittleFS.exists(LoraConfigFilePath))
     {
         return;
     }
     
-    File file = LittleFS.open(configFilePath, "r");
+    File file = LittleFS.open(LoraConfigFilePath, "r");
     if (!file)
     {
         return;
@@ -75,10 +75,10 @@ void loadLoraConfig()
 
 void saveLoraConfig()
 {
-    File file = LittleFS.open(configFilePath, "w");
+    File file = LittleFS.open(LoraConfigFilePath, "w");
     if (!file) 
     {
-        Serial.printf("LittleFS : %s open failed", configFilePath);
+        Serial.printf("LittleFS : %s open failed", LoraConfigFilePath);
         return;
     }
 
@@ -100,9 +100,9 @@ void saveLoraConfig()
 
 void resetLoraConfig()
 {
-    if (LittleFS.exists(configFilePath))
+    if (LittleFS.exists(LoraConfigFilePath))
     {
-        LittleFS.remove(configFilePath);
+        LittleFS.remove(LoraConfigFilePath);
     }
     loraConfig = DEFAULT_LORA_CONFIG;
 }

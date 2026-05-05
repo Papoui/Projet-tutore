@@ -10,6 +10,9 @@ struct WifiData{
     String password;
 };
 
+extern WifiData WifiConfig;
+extern const WifiData defaultConfig;
+
 void initWifiConfig();
 void saveWifiConfig();
 void loadWifiConfig();

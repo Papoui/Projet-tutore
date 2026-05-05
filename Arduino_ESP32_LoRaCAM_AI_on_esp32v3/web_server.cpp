@@ -12,7 +12,7 @@
 
 // ---------------------------------- Utils ----------------------------------
 
-void parseConfigJson(JsonDocument &doc, const LoraConfig &config)
+void parseLoraConfigJson(JsonDocument &doc, const LoraConfig &config)
 {
     doc["lora"]["bw"] = config.lora.bw;
     doc["lora"]["sf"] = config.lora.sf;
@@ -22,6 +22,12 @@ void parseConfigJson(JsonDocument &doc, const LoraConfig &config)
     doc["lora"]["nwkSKey"] = config.lora.nwkSKey;
     doc["loracam"]["quality"] = config.loracam.quality;
     doc["loracam"]["mss"] = config.loracam.mss;
+}
+
+void parseWifiConfigJson(JsonDocument &doc, const WifiData &config)
+{
+    doc["ssid"] = config.ssid;
+    doc["pawword"] = config.password;
 }
 
 // ---------------------------------- Routes des fichiers ----------------------------------
@@ -55,7 +61,7 @@ void getLoraConfig(AsyncWebServerRequest *request)
 {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
     JsonDocument doc;
-    parseConfigJson(doc, loraConfig);
+    parseLoraConfigJson(doc, loraConfig);
     serializeJson(doc, *response);
     request->send(response);
 }
@@ -64,7 +70,7 @@ void getLoraDefaultConfig(AsyncWebServerRequest *request)
 {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
     JsonDocument doc;
-    parseConfigJson(doc, DEFAULT_LORA_CONFIG);
+    parseLoraConfigJson(doc, DEFAULT_LORA_CONFIG);
     serializeJson(doc, *response);
     request->send(response);
 }
@@ -109,7 +115,7 @@ void getWifiConfig(AsyncWebServerRequest *request)
 {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
     JsonDocument doc;
-    parseConfigJson(doc, WifiConfig);
+    parseWifiConfigJson(doc, WifiConfig);
     serializeJson(doc, *response);
     request->send(response);
 }
@@ -118,7 +124,7 @@ void getWifiDefaultConfig(AsyncWebServerRequest *request)
 {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
     JsonDocument doc;
-    parseConfigJson(doc, defaultConfig);
+    parseWifiConfigJson(doc, defaultConfig);
     serializeJson(doc, *response);
     request->send(response);
 }

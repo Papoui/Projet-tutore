@@ -1,6 +1,6 @@
 #include "wifi_service.h"
 
-const char *configFilePath = "/wifi_config.json";
+const char *WifiConfigFilePath = "/wifi_config.json";
 
 WifiData WifiConfig;
 const WifiData defaultConfig = {
@@ -21,12 +21,12 @@ void loadWifiConfig()
 {
     WifiConfig = defaultConfig;
 
-    if (!LittleFS.exists(configFilePath))
+    if (!LittleFS.exists(WifiConfigFilePath))
     {
         return;
     }
     
-    File file = LittleFS.open(configFilePath, "r");
+    File file = LittleFS.open(WifiConfigFilePath, "r");
     if (!file)
     {
         return;
@@ -47,10 +47,10 @@ void loadWifiConfig()
 
 void saveWifiConfig()
 {
-    File file = LittleFS.open(configFilePath, "w");
+    File file = LittleFS.open(WifiConfigFilePath, "w");
     if (!file) 
     {
-        Serial.printf("LittleFS : %s open failed", configFilePath);
+        Serial.printf("LittleFS : %s open failed", WifiConfigFilePath);
         return;
     }
 
@@ -66,9 +66,9 @@ void saveWifiConfig()
 
 void resetWifiConfig()
 {
-    if (LittleFS.exists(configFilePath))
+    if (LittleFS.exists(WifiConfigFilePath))
     {
-        LittleFS.remove(configFilePath);
+        LittleFS.remove(WifiConfigFilePath);
     }
     WifiConfig = defaultConfig;
 }
