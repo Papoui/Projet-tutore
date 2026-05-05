@@ -85,16 +85,16 @@ void printWifiConfig()
 }
 
 void initWifiConnection(){
-    loadWifiConfig();
+    initWifiConfig();
     //First, try to connect to an existing network
     WiFi.begin(WifiConfig.ssid.c_str(), WifiConfig.password.c_str());
     Serial.println("Trying to connect to an existing network...");
     Serial.printf("\nRegistered network: %s", WifiConfig.ssid.c_str());
     Serial.printf("\nRegistered password: %s", WifiConfig.password.c_str());
     Serial.print("\nConnecting");
-    for (int i = 0; i < 5 && WiFi.status() != WL_CONNECTED; i++)
+    for (int i = 0; i < 10 && WiFi.status() != WL_CONNECTED; i++)
     {
-        delay(500);
+        delay(1000);
         Serial.print(".");
     }
     if (WiFi.status() != WL_CONNECTED)
