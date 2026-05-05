@@ -29,10 +29,10 @@ struct LoraConfig
 extern LoraConfig loraConfig;
 extern const LoraConfig DEFAULT_LORA_CONFIG;
 
-void initConfig();
-void saveConfig();
-void loadConfig();
-void resetConfig();
-void printConfig();
+void initLoraConfig();
+void saveLoraConfig();
+void loadLoraConfig();
+void resetLoraConfig();
+void printLoraConfig();
 
 #endif

@@ -29,7 +29,7 @@ const LoraConfig DEFAULT_LORA_CONFIG = {
 
 // ---------------------------------- Fonctions ----------------------------------
 
-void initConfig()
+void initLoraConfig()
 {
     if (!LittleFS.begin())
     {
@@ -38,7 +38,7 @@ void initConfig()
     loadConfig();
 }
 
-void loadConfig()
+void loadLoraConfig()
 {
     loraConfig = DEFAULT_LORA_CONFIG;
 
@@ -73,7 +73,7 @@ void loadConfig()
     loraConfig.loracam.mss = doc["loracam"]["mss"].as<int>();
 }
 
-void saveConfig()
+void saveLoraConfig()
 {
     File file = LittleFS.open(configFilePath, "w");
     if (!file) 
@@ -98,7 +98,7 @@ void saveConfig()
     file.close();
 }
 
-void resetConfig()
+void resetLoraConfig()
 {
     if (LittleFS.exists(configFilePath))
     {
@@ -107,7 +107,7 @@ void resetConfig()
     loraConfig = DEFAULT_LORA_CONFIG;
 }
 
-void printConfig()
+void printLoraConfig()
 {
     Serial.println("--- Configuration lora actuelle ---");
     Serial.print("BW : ");

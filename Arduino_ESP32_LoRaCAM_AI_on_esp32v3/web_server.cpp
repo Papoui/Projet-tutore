@@ -80,7 +80,7 @@ void postConfigLora(AsyncWebServerRequest *request, JsonVariant &json)
     loraConfig.lora.appSKey = doc["appSKey"].as<String>();
     loraConfig.lora.nwkSKey = doc["nwkSKey"].as<String>();
 
-    saveConfig();
+    saveLoraConfig();
     request->send(200);
 }
 
@@ -90,13 +90,13 @@ void postConfigLoracam(AsyncWebServerRequest *request, JsonVariant &json)
     loraConfig.loracam.quality = doc["quality"].as<int>();
     loraConfig.loracam.mss = doc["mss"].as<int>();
 
-    saveConfig();
+    saveLoraConfig();
     request->send(200);
 }
 
 void postConfigReset(AsyncWebServerRequest *request)
 {
-    resetConfig();
+    resetLoraConfig();
     request->send(200);
 }
 
@@ -108,8 +108,8 @@ AsyncWebServer server(8080);
 
 void startWebServer()
 {
-    initConfig();
-    printConfig();
+    initLoraConfig();
+    printLoraConfig();
 
     AsyncCallbackJsonWebHandler* loraHandler = new AsyncCallbackJsonWebHandler("/api/lora-config/lora", postConfigLora);
     AsyncCallbackJsonWebHandler* loracamHandler = new AsyncCallbackJsonWebHandler("/api/lora-config/loracam", postConfigLoracam);
