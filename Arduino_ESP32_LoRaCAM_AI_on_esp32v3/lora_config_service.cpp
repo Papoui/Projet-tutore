@@ -10,7 +10,7 @@
 // ---------------------------------- Constantes et variables ----------------------------------
 
 LoraConfig loraConfig;
-const char *configFilePath = "/lora_config.json";
+const char *configFilePath = "/config.json";
 
 const LoraConfig DEFAULT_LORA_CONFIG = {
     {
@@ -109,7 +109,7 @@ void resetConfig()
 
 void printConfig()
 {
-    Serial.println("--- Configuration lora actuel ---");
+    Serial.println("--- Configuration lora actuelle ---");
     Serial.print("BW : ");
     Serial.println(loraConfig.lora.bw);
     Serial.print("SF : ");
