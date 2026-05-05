@@ -5,6 +5,12 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
-void initWifi();
+
+
+void initWifiConfig();
+void saveWifiConfig()
+void loadWifiConfig();
+void resetWifiConfig();
+void printWifiConfig();
 
 #endif

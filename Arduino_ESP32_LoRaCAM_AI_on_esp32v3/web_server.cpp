@@ -1,4 +1,5 @@
 #include "lora_config_service.h"
+#include "wifi_service.h"
 #include <ArduinoJson.h> 
 #include "AsyncJson.h"
 #include <ESPAsyncWebServer.h> 
