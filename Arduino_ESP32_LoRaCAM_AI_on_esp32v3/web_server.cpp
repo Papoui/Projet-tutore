@@ -157,8 +157,8 @@ void startWebServer()
 {
     initWifiConfig();
     initLoraConfig();
-    printLoraConfig();
-    printWifiConfig();
+    //printLoraConfig();
+    //printWifiConfig();
 
     AsyncCallbackJsonWebHandler* loraHandler = new AsyncCallbackJsonWebHandler("/api/lora-config/lora", postLoraConfig);
     AsyncCallbackJsonWebHandler* loracamHandler = new AsyncCallbackJsonWebHandler("/api/lora-config/loracam", postLoracamConfig);

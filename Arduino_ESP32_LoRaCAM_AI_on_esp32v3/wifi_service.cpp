@@ -62,6 +62,7 @@ void saveWifiConfig()
     serializeJson(doc, file);
 
     file.close();
+    initWifiConnection();
 }
 
 void resetWifiConfig()
@@ -81,4 +82,40 @@ void printWifiConfig()
     Serial.print("Password : ");
     Serial.println(WifiConfig.password);
     Serial.println("---------------------------------");
+}
+
+void initWifiConnection(){
+    loadWifiConfig();
+    //First, try to connect to an existing network
+    WiFi.begin(WifiConfig.ssid.c_str(), WifiConfig.password.c_str());
+    Serial.println("Trying to connect to an existing network...");
+    Serial.printf("\nRegistered network: %s", WifiConfig.ssid.c_str());
+    Serial.printf("\nRegistered password: %s", WifiConfig.password.c_str());
+    Serial.print("\nConnecting");
+    for (int i = 0; i < 5 && WiFi.status() != WL_CONNECTED; i++)
+    {
+        delay(500);
+        Serial.print(".");
+    }
+    if (WiFi.status() != WL_CONNECTED)
+    {
+
+        Serial.println("\nFailed to connect. \nSwitching to access point mode...\n");
+        WiFi.disconnect(true);
+
+        String localSsid = "ESP32S3";
+        String localPassword = "ESP32S3APM";
+        WiFi.mode(WIFI_AP);
+        WiFi.softAP(localSsid, localPassword);
+        Serial.printf("Acces point : %s\n", localSsid);
+        Serial.printf("Password : %s\n\n", localPassword);
+
+        Serial.printf("Go to 'http://%s:8080' to connect.\n", WiFi.softAPIP().toString());
+    }
+    else
+    {
+        Serial.printf("Go to 'http://%s:8080' to connect.\n", WiFi.localIP().toString());
+        
+    }
+    WiFi.setSleep(false);
 }

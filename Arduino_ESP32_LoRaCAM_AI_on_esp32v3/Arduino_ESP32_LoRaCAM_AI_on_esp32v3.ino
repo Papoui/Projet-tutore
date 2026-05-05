@@ -52,7 +52,7 @@
 #include "esp_timer.h"
 #include "img_converters.h"
 #include "fb_gfx.h"
-#include <WiFi.h>
+#include "wifi_service.h"
 
 #include "ConfigSettings.h"
 
@@ -89,14 +89,9 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "Bbox-F791B483";
-const char *password = "7T5VdT4xr7PSchb6rS";
 
-// const char *ssid = "freebox_TYWCSM";   
-// const char *password = "copernic";
-
-//const char *ssid = "iPhoneD";   
-//const char *password = "345hello";
+// Wifi credentials are now directly stocked on the controller. 
+// You need to connect to 
 
 //app_httpd.cpp
 void startCameraServer();
@@ -713,23 +708,10 @@ void setup() {
     Serial.println(BOOT_START_MSG);
 
 #if defined(WITH_WEB_SERVER)
-    WiFi.begin(ssid, password);
-    WiFi.setSleep(false);
-
-    Serial.print("WiFi connecting");
-    while (WiFi.status() != WL_CONNECTED) {
-        delay(500);
-        Serial.print(".");
-    }
-    Serial.println("");
-    Serial.println("WiFi connected");
-
+    initWifiConnection();
     startCameraServer();
     startWebServer();
 
-    Serial.print("Camera Ready! Use 'http://");
-    Serial.print(WiFi.localIP());
-    Serial.println("' to connect");
 #endif
 
 #if defined(WITH_CUSTOM_CAM)

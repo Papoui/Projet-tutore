@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <ArduinoJson.h>
 #include <LittleFS.h>
+#include <WiFi.h>
 
 struct WifiData{
     String ssid;
@@ -18,5 +19,6 @@ void saveWifiConfig();
 void loadWifiConfig();
 void resetWifiConfig();
 void printWifiConfig();
+void initWifiConnection();
 
 #endif
