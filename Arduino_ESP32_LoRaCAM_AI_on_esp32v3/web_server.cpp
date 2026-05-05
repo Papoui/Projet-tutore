@@ -47,11 +47,11 @@ void onNotFound(AsyncWebServerRequest *request)
     }
 }
 
-// ---------------------------------- Routes de configuration ----------------------------------
+// ---------------------------------- Routes de configuration Lora ----------------------------------
 
 // https://esp32async.github.io/ESPAsyncWebServer/responses/#arduinojson-basic-response
 
-void getConfig(AsyncWebServerRequest *request)
+void getLoraConfig(AsyncWebServerRequest *request)
 {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
     JsonDocument doc;
@@ -60,7 +60,7 @@ void getConfig(AsyncWebServerRequest *request)
     request->send(response);
 }
 
-void getConfigDefault(AsyncWebServerRequest *request)
+void getLoraDefaultConfig(AsyncWebServerRequest *request)
 {
     AsyncResponseStream *response = request->beginResponseStream("application/json");
     JsonDocument doc;
@@ -71,7 +71,7 @@ void getConfigDefault(AsyncWebServerRequest *request)
 
 // https://esp32async.github.io/ESPAsyncWebServer/requests/#json-body-handling-with-arduinojson
 
-void postConfigLora(AsyncWebServerRequest *request, JsonVariant &json)
+void postLoraConfig(AsyncWebServerRequest *request, JsonVariant &json)
 {
     JsonObject doc = json.as<JsonObject>();
     loraConfig.lora.bw = doc["bw"].as<String>();
@@ -85,7 +85,7 @@ void postConfigLora(AsyncWebServerRequest *request, JsonVariant &json)
     request->send(200);
 }
 
-void postConfigLoracam(AsyncWebServerRequest *request, JsonVariant &json)
+void postLoracamConfig(AsyncWebServerRequest *request, JsonVariant &json)
 {
     JsonObject doc = json.as<JsonObject>();
     loraConfig.loracam.quality = doc["quality"].as<int>();
@@ -95,9 +95,49 @@ void postConfigLoracam(AsyncWebServerRequest *request, JsonVariant &json)
     request->send(200);
 }
 
-void postConfigReset(AsyncWebServerRequest *request)
+void postLoraConfigReset(AsyncWebServerRequest *request)
 {
     resetLoraConfig();
+    request->send(200);
+}
+
+// ---------------------------------- Routes de configuration Wifi ----------------------------------
+
+// https://esp32async.github.io/ESPAsyncWebServer/responses/#arduinojson-basic-response
+
+void getWifiConfig(AsyncWebServerRequest *request)
+{
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
+    JsonDocument doc;
+    parseConfigJson(doc, WifiConfig);
+    serializeJson(doc, *response);
+    request->send(response);
+}
+
+void getWifiDefaultConfig(AsyncWebServerRequest *request)
+{
+    AsyncResponseStream *response = request->beginResponseStream("application/json");
+    JsonDocument doc;
+    parseConfigJson(doc, defaultConfig);
+    serializeJson(doc, *response);
+    request->send(response);
+}
+
+// https://esp32async.github.io/ESPAsyncWebServer/requests/#json-body-handling-with-arduinojson
+
+void postWifiConfig(AsyncWebServerRequest *request, JsonVariant &json)
+{
+    JsonObject doc = json.as<JsonObject>();
+    WifiConfig.ssid = doc["ssid"].as<String>();
+    WifiConfig.password = doc["password"].as<String>();
+
+    saveWifiConfig();
+    request->send(200);
+}
+
+void postWifiConfigReset(AsyncWebServerRequest *request)
+{
+    resetWifiConfig();
     request->send(200);
 }
 
@@ -109,18 +149,27 @@ AsyncWebServer server(8080);
 
 void startWebServer()
 {
+    initWifiConfig();
     initLoraConfig();
     printLoraConfig();
+    printWifiConfig();
 
-    AsyncCallbackJsonWebHandler* loraHandler = new AsyncCallbackJsonWebHandler("/api/lora-config/lora", postConfigLora);
-    AsyncCallbackJsonWebHandler* loracamHandler = new AsyncCallbackJsonWebHandler("/api/lora-config/loracam", postConfigLoracam);
+    AsyncCallbackJsonWebHandler* loraHandler = new AsyncCallbackJsonWebHandler("/api/lora-config/lora", postLoraConfig);
+    AsyncCallbackJsonWebHandler* loracamHandler = new AsyncCallbackJsonWebHandler("/api/lora-config/loracam", postLoracamConfig);
+    AsyncCallbackJsonWebHandler* WifiHandler = new AsyncCallbackJsonWebHandler("/api/wifi-config", postWifiConfig);
     
     server.on("/", HTTP_GET, getIndex);
-    server.on("/api/lora-config/default", HTTP_GET, getConfigDefault);
-    server.on("/api/lora-config", HTTP_GET, getConfig);
+    server.on("/api/lora-config/default", HTTP_GET, getLoraDefaultConfig);
+    server.on("/api/lora-config", HTTP_GET, getLoraConfig);
+    server.on("/api/lora-config/reset", HTTP_POST, postLoraConfigReset);
     server.addHandler(loraHandler);
     server.addHandler(loracamHandler);
-    server.on("/api/lora-config/reset", HTTP_POST, postConfigReset);
+
+    server.on("/api/wifi-config/default", HTTP_GET, getWifiDefaultConfig);
+    server.on("/api/wifi-config", HTTP_GET, getWifiConfig);
+    server.on("/api/wifi-config/reset", HTTP_POST, postWifiConfigReset);
+    server.addHandler(WifiHandler);
+
     server.onNotFound(onNotFound);
     
     server.begin();

@@ -5,7 +5,10 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 
-
+struct WifiData{
+    String ssid;
+    String password;
+};
 
 void initWifiConfig();
 void saveWifiConfig()
