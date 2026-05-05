@@ -42,7 +42,7 @@ void loadWifiConfig()
     }
     
     WifiConfig.ssid = doc["ssid"].as<String>();
-    WifiConfig.ssid = doc["password"].as<String>();
+    WifiConfig.password = doc["password"].as<String>();
 }
 
 void saveWifiConfig()
@@ -56,7 +56,7 @@ void saveWifiConfig()
 
     JsonDocument doc;
     doc["ssid"] = WifiConfig.ssid;
-    doc["password"] = WifiConfig.ssid;
+    doc["password"] = WifiConfig.password;
 
     // https://arduinojson.org/v7/api/json/serializejson/#write-to-a-file
     serializeJson(doc, file);

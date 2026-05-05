@@ -27,7 +27,7 @@ void parseLoraConfigJson(JsonDocument &doc, const LoraConfig &config)
 void parseWifiConfigJson(JsonDocument &doc, const WifiData &config)
 {
     doc["ssid"] = config.ssid;
-    doc["pawword"] = config.password;
+    doc["password"] = config.password;
 }
 
 // ---------------------------------- Routes des fichiers ----------------------------------

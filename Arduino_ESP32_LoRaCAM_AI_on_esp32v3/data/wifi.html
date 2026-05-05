@@ -54,7 +54,7 @@
             const formData = new FormData(event.target);
             const data = Object.fromEntries(formData.entries());
             try {
-                await postHTTP('/api/config/wifi', data);
+                await postHTTP('/api/wifi-config', data);
                 alert('Paramètres Wi-Fi sauvegardés');
             } catch (error) {
                 console.error(error);
@@ -64,7 +64,7 @@
 
         async function onLoad() {
             try {
-                const data = await getHTTP('/api/config');
+                const data = await getHTTP('/api/wifi-config');
                 form.ssid.value = data.ssid || '';
                 form.password.value = data.password || '';
             } catch (error) {
