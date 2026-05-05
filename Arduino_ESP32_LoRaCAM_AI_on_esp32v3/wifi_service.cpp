@@ -6,7 +6,7 @@ WifiData WifiConfig;
 const WifiData defaultConfig = {
     "",
     ""
-}
+};
 
 void initWifiConfig()
 {
