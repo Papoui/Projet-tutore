@@ -11,7 +11,7 @@ struct WifiData{
 };
 
 void initWifiConfig();
-void saveWifiConfig()
+void saveWifiConfig();
 void loadWifiConfig();
 void resetWifiConfig();
 void printWifiConfig();
