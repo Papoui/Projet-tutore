@@ -32,7 +32,7 @@ void parseWifiConfigJson(JsonDocument &doc, const WifiData &config)
     doc["ap"] = config.ap;
 }
 
-// ---------------------------------- Routes des fichiers ----------------------------------
+// ---------------------------------- File routes ----------------------------------
 
 // https://esp32async.github.io/ESPAsyncWebServer/responses/#respond-with-content-coming-from-a-file
 
@@ -55,7 +55,7 @@ void onNotFound(AsyncWebServerRequest *request)
     }
 }
 
-// ---------------------------------- Routes de configuration Lora ----------------------------------
+// ---------------------------------- LoRa HTTP routes ----------------------------------
 
 // https://esp32async.github.io/ESPAsyncWebServer/responses/#arduinojson-basic-response
 
@@ -109,7 +109,7 @@ void postLoraConfigReset(AsyncWebServerRequest *request)
     request->send(200);
 }
 
-// ---------------------------------- Routes de configuration Wifi ----------------------------------
+// ---------------------------------- WiFi HTTP routes ----------------------------------
 
 // https://esp32async.github.io/ESPAsyncWebServer/responses/#arduinojson-basic-response
 
@@ -152,7 +152,7 @@ void postWifiConfigReset(AsyncWebServerRequest *request)
     request->send(200);
 }
 
-// ---------------------------------- Lancement ----------------------------------
+// ---------------------------------- Startup ----------------------------------
 
 // https://esp32async.github.io/ESPAsyncWebServer/setup/
 

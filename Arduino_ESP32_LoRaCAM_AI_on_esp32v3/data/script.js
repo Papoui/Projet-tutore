@@ -1,4 +1,4 @@
-// Fonction générique pour faire un POST avec des données JSON
+// Generic functions for POSTing JSON data.
 async function postHTTP(url, data) {
     const response = await fetch(url, {
         method: 'POST',
@@ -8,7 +8,7 @@ async function postHTTP(url, data) {
     if (!response.ok) throw new Error(`Erreur HTTP ${response.status} : ${await response.text()}`);
 }
 
-// Fonction générique pour faire un GET et retourner les données JSON
+// Generic functions for GETting JSON data.
 async function getHTTP(url) {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Erreur HTTP ${response.status} : ${await response.text()}`);

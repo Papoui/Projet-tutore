@@ -27,7 +27,7 @@
     </nav>
 
     <main class="container">
-        <h2>Paramètres Wifi</h2>
+        <h2>WiFi Settings</h2>
         <form onsubmit="onSubmit(event)">
             <fieldset>
                 <p>
@@ -43,10 +43,10 @@
                     <input type="text" name="ip" disabled>
                 </p>
                 <p>
-                    <label>Point d'accès activé ?</label>
+                    <label>Is the access point active?</label>
                     <input type="checkbox" name="ap">
                 </p>
-                <button type="submit" class="button primary">Sauvegarder</button>
+                <button type="submit" class="button primary">Save</button>
             </fieldset>
         </form>
     </main>
@@ -63,11 +63,11 @@
             const data = Object.fromEntries(formData.entries());
             data.ap = form.ap.checked;
             try {
-                alert('Configuration sauvegardée');
+                alert('WiFi settings saved.');
                 await postHTTP('/api/wifi-config', data);
             } catch (error) {
                 console.error(error);
-                alert('Erreur de sauvegarde des paramètres Wi-Fi');
+                alert('Failed to save Wi-Fi settings.');
             }
 
         }
@@ -79,10 +79,10 @@
                 form.password.value = data.password || '';
                 form.ip.value = data.ip+" :8080" || '';
                 form.ap.checked = data.ap;
-                document.getElementById("ssidVar").innerHTML = `New Server IP (if connecting from the following network: ${data.ssid})`;
+                document.getElementById("ssidVar").innerHTML = `New Server IP (when connected to: ${data.ssid})`;
             } catch (error) {
                 console.error(error);
-                alert('Erreur de chargement des paramètres Wi-Fi');
+                alert('Failed to load Wi-Fi settings.');
             }
         }
 

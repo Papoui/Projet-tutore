@@ -7,7 +7,7 @@
 // https://arduino-esp8266.readthedocs.io/en/latest/filesystem.html
 // https://arduinojson.org
 
-// ---------------------------------- Constantes et variables ----------------------------------
+// ---------------------------------- Constants and variables ----------------------------------
 
 LoraConfig loraConfig;
 const char *LoraConfigFilePath = "/lora_config.json";
@@ -27,7 +27,7 @@ const LoraConfig DEFAULT_LORA_CONFIG = {
     }
 };
 
-// ---------------------------------- Fonctions ----------------------------------
+// ---------------------------------- Functions ----------------------------------
 
 void initLoraConfig()
 {
