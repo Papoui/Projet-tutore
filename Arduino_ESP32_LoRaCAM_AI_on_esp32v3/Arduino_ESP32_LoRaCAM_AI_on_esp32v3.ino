@@ -737,6 +737,7 @@ void setup() {
 
 void loop() {
 
+//Reload the wifi connection whenever needed (see web_server.cpp -> postWifiConfig())
 if(reloadWifi == true && millis() > reloadTime){
     reloadWifi == false;
     initWifiConnection();
