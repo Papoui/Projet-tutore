@@ -2,7 +2,7 @@
 
 const char *WifiConfigFilePath = "/wifi_config.json";
 
-bool reloadWifi = false;
+bool reloadWifi = true;
 unsigned long reloadTime = 0;
 WifiData WifiConfig;
 const WifiData defaultConfig = {

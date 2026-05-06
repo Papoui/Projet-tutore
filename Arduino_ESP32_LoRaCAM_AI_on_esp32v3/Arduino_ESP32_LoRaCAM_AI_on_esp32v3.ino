@@ -709,7 +709,6 @@ void setup() {
 
 #if defined(WITH_WEB_SERVER)
     initWifiConfig();
-    initWifiConnection();
     startCameraServer();
     startWebServer();
 
