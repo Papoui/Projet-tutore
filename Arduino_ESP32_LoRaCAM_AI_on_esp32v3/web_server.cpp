@@ -138,7 +138,7 @@ void postWifiConfig(AsyncWebServerRequest *request, JsonVariant &json)
     JsonObject doc = json.as<JsonObject>();
     WifiConfig.ssid = doc["ssid"].as<String>();
     WifiConfig.password = doc["password"].as<String>();
-    WifiConfig.ap = doc["ap"].as<bool>();
+    WifiConfig.ap = doc["ap"].as<int>();
 
     saveWifiConfig();
     request->send(200);

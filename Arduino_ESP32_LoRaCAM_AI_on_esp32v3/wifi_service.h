@@ -9,7 +9,7 @@
 struct WifiData{
     String ssid;
     String password;
-    bool ap;
+    int ap;
 };
 
 extern WifiData WifiConfig;

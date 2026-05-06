@@ -35,11 +35,11 @@
                     <input type="text" name="ssid">
                 </p>
                 <p>
-                    <label>Mot de passe</label>
+                    <label>Password</label>
                     <input type="text" name="password">
                 </p>
                 <p>
-                    <label>IP (Si connexion SSID réussie)</label>
+                    <label id = "ssidVar"></label>
                     <input type="text" name="ip" disabled>
                 </p>
                 <p>
@@ -63,6 +63,7 @@
             const data = Object.fromEntries(formData.entries());
             data.ap = form.ap.checked;
             try {
+                alert('Configuration sauvegardée');
                 await postHTTP('/api/wifi-config', data);
             } catch (error) {
                 console.error(error);
@@ -76,8 +77,9 @@
                 const data = await getHTTP('/api/wifi-config');
                 form.ssid.value = data.ssid || '';
                 form.password.value = data.password || '';
-                form.ip.value = data.ip || '';
+                form.ip.value = data.ip+" :8080" || '';
                 form.ap.checked = data.ap;
+                document.getElementById("ssidVar").innerHTML = `New Server IP (if connecting from the following network: ${data.ssid})`;
             } catch (error) {
                 console.error(error);
                 alert('Erreur de chargement des paramètres Wi-Fi');

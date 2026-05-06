@@ -8,7 +8,7 @@ WifiData WifiConfig;
 const WifiData defaultConfig = {
     "",
     "",
-    true
+    1
 };
 
 void initWifiConfig()
@@ -46,7 +46,7 @@ void loadWifiConfig()
     
     WifiConfig.ssid = doc["ssid"].as<String>();
     WifiConfig.password = doc["password"].as<String>();
-    WifiConfig.ap = doc['ap'].as<bool>();
+    WifiConfig.ap = doc["ap"].as<int>();
 }
 
 void saveWifiConfig()
@@ -65,7 +65,6 @@ void saveWifiConfig()
 
     // https://arduinojson.org/v7/api/json/serializejson/#write-to-a-file
     serializeJson(doc, file);
-
     file.close();
 }
 
@@ -119,6 +118,8 @@ void initWifiConnection(){
         saveWifiConfig();
         if(WifiConfig.ap == false){
             WiFi.mode(WIFI_STA);
+        }else{
+            Serial.printf("\n(Acces point :Go to 'http://%s:8080' to connect.)\n", WiFi.softAPIP().toString().c_str());
         }
         
     }
