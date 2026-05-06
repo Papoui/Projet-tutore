@@ -708,6 +708,7 @@ void setup() {
     Serial.println(BOOT_START_MSG);
 
 #if defined(WITH_WEB_SERVER)
+    initWifiConfig();
     initWifiConnection();
     startCameraServer();
     startWebServer();
@@ -735,6 +736,11 @@ void setup() {
 *****************************/
 
 void loop() {
+
+if(reloadWifi == true && millis() > reloadTime){
+    reloadWifi == false;
+    initWifiConnection();
+}
 
 #ifdef WITH_CUSTOM_CAM
 

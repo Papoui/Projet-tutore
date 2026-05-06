@@ -28,6 +28,8 @@ void parseWifiConfigJson(JsonDocument &doc, const WifiData &config)
 {
     doc["ssid"] = config.ssid;
     doc["password"] = config.password;
+    doc["ip"] = WiFi.localIP().toString();
+    doc["ap"] = config.ap;
 }
 
 // ---------------------------------- Routes des fichiers ----------------------------------
@@ -136,9 +138,12 @@ void postWifiConfig(AsyncWebServerRequest *request, JsonVariant &json)
     JsonObject doc = json.as<JsonObject>();
     WifiConfig.ssid = doc["ssid"].as<String>();
     WifiConfig.password = doc["password"].as<String>();
+    WifiConfig.ap = doc["ap"].as<bool>();
 
     saveWifiConfig();
     request->send(200);
+    reloadWifi = true;
+    reloadTime = millis() + 500;
 }
 
 void postWifiConfigReset(AsyncWebServerRequest *request)

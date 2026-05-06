@@ -38,6 +38,14 @@
                     <label>Mot de passe</label>
                     <input type="text" name="password">
                 </p>
+                <p>
+                    <label>IP (Si connexion SSID réussie)</label>
+                    <input type="text" name="ip" disabled>
+                </p>
+                <p>
+                    <label>Point d'accès activé ?</label>
+                    <input type="checkbox" name="ap">
+                </p>
                 <button type="submit" class="button primary">Sauvegarder</button>
             </fieldset>
         </form>
@@ -53,13 +61,14 @@
             event.preventDefault();
             const formData = new FormData(event.target);
             const data = Object.fromEntries(formData.entries());
+            data.ap = form.ap.checked;
             try {
                 await postHTTP('/api/wifi-config', data);
-                alert('Paramètres Wi-Fi sauvegardés');
             } catch (error) {
                 console.error(error);
                 alert('Erreur de sauvegarde des paramètres Wi-Fi');
             }
+
         }
 
         async function onLoad() {
@@ -67,6 +76,8 @@
                 const data = await getHTTP('/api/wifi-config');
                 form.ssid.value = data.ssid || '';
                 form.password.value = data.password || '';
+                form.ip.value = data.ip || '';
+                form.ap.checked = data.ap;
             } catch (error) {
                 console.error(error);
                 alert('Erreur de chargement des paramètres Wi-Fi');

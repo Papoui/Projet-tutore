@@ -9,10 +9,13 @@
 struct WifiData{
     String ssid;
     String password;
+    bool ap;
 };
 
 extern WifiData WifiConfig;
 extern const WifiData defaultConfig;
+extern bool reloadWifi;
+extern unsigned long reloadTime;
 
 void initWifiConfig();
 void saveWifiConfig();

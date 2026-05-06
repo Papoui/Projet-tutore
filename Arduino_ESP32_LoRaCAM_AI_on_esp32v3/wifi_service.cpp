@@ -2,10 +2,13 @@
 
 const char *WifiConfigFilePath = "/wifi_config.json";
 
+bool reloadWifi = false;
+unsigned long reloadTime = 0;
 WifiData WifiConfig;
 const WifiData defaultConfig = {
     "",
-    ""
+    "",
+    true
 };
 
 void initWifiConfig()
@@ -43,6 +46,7 @@ void loadWifiConfig()
     
     WifiConfig.ssid = doc["ssid"].as<String>();
     WifiConfig.password = doc["password"].as<String>();
+    WifiConfig.ap = doc['ap'].as<bool>();
 }
 
 void saveWifiConfig()
@@ -57,12 +61,12 @@ void saveWifiConfig()
     JsonDocument doc;
     doc["ssid"] = WifiConfig.ssid;
     doc["password"] = WifiConfig.password;
+    doc["ap"] = WifiConfig.ap;
 
     // https://arduinojson.org/v7/api/json/serializejson/#write-to-a-file
     serializeJson(doc, file);
 
     file.close();
-    initWifiConnection();
 }
 
 void resetWifiConfig()
@@ -85,8 +89,8 @@ void printWifiConfig()
 }
 
 void initWifiConnection(){
-    initWifiConfig();
     //First, try to connect to an existing network
+    WiFi.mode(WIFI_AP_STA);
     WiFi.begin(WifiConfig.ssid.c_str(), WifiConfig.password.c_str());
     Serial.println("Trying to connect to an existing network...");
     Serial.printf("\nRegistered network: %s", WifiConfig.ssid.c_str());
@@ -99,22 +103,23 @@ void initWifiConnection(){
     }
     if (WiFi.status() != WL_CONNECTED)
     {
-
         Serial.println("\nFailed to connect. \nSwitching to access point mode...\n");
         WiFi.disconnect(true);
-
         String localSsid = "ESP32S3";
         String localPassword = "ESP32S3APM";
         WiFi.mode(WIFI_AP);
         WiFi.softAP(localSsid, localPassword);
-        Serial.printf("Acces point : %s\n", localSsid);
-        Serial.printf("Password : %s\n\n", localPassword);
-
-        Serial.printf("Go to 'http://%s:8080' to connect.\n", WiFi.softAPIP().toString());
+        Serial.printf("Acces point : %s\n", localSsid.c_str());
+        Serial.printf("Password : %s\n\n", localPassword.c_str());
+        Serial.printf("\nSuccess! Go to 'http://%s:8080' to connect.\n", WiFi.softAPIP().toString().c_str());
     }
     else
     {
-        Serial.printf("Go to 'http://%s:8080' to connect.\n", WiFi.localIP().toString());
+        Serial.printf("\nSucces! Go to 'http://%s:8080' to connect.\n", WiFi.localIP().toString().c_str());
+        saveWifiConfig();
+        if(WifiConfig.ap == false){
+            WiFi.mode(WIFI_STA);
+        }
         
     }
     WiFi.setSleep(false);
